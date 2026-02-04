@@ -19,9 +19,7 @@ export interface DriftProviderProps {
  * ```
  */
 export function DriftProvider({ config, children }: DriftProviderProps) {
-  return (
-    <DriftContext.Provider value={config}>{children}</DriftContext.Provider>
-  );
+  return <DriftContext.Provider value={config}>{children}</DriftContext.Provider>;
 }
 
 /**

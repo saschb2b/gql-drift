@@ -1,4 +1,4 @@
-import type { FieldDefinition, FieldType } from "./types.js";
+import type { FieldDefinition } from "./types.js";
 
 /** HTML input type mapping */
 export type HtmlInputType = "text" | "number" | "date" | "checkbox" | "select";
@@ -59,10 +59,7 @@ export function formatValue(
     }
 
     case "date": {
-      const date =
-        value instanceof Date
-          ? value
-          : new Date(value as string | number);
+      const date = value instanceof Date ? value : new Date(value as string | number);
       if (Number.isNaN(date.getTime())) return String(value);
       return date.toLocaleDateString(options?.locale, options?.dateOptions);
     }
@@ -107,9 +104,6 @@ export function parseInput(field: FieldDefinition, raw: string | boolean): unkno
 /**
  * Check if a field is editable given a set of editable field keys.
  */
-export function isEditable(
-  field: FieldDefinition,
-  editableKeys: Set<string>,
-): boolean {
+export function isEditable(field: FieldDefinition, editableKeys: Set<string>): boolean {
   return editableKeys.has(field.key);
 }

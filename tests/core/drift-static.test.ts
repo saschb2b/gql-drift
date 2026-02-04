@@ -4,17 +4,33 @@ import type { FieldDefinition, DriftConfig, MutationOperation } from "../../src/
 
 const ORDER_FIELDS: FieldDefinition[] = [
   { key: "orderNumber", label: "Order #", graphqlPath: "orderNumber", type: "string" },
-  { key: "status", label: "Status", graphqlPath: "status", type: "enum", enumValues: ["PENDING", "SHIPPED"] },
+  {
+    key: "status",
+    label: "Status",
+    graphqlPath: "status",
+    type: "enum",
+    enumValues: ["PENDING", "SHIPPED"],
+  },
   { key: "total", label: "Total", graphqlPath: "total", type: "number" },
   { key: "createdAt", label: "Created", graphqlPath: "createdAt", type: "date" },
 ];
 
 const ORDER_INPUT_FIELDS: FieldDefinition[] = [
-  { key: "status", label: "Status", graphqlPath: "status", type: "enum", enumValues: ["PENDING", "SHIPPED"] },
+  {
+    key: "status",
+    label: "Status",
+    graphqlPath: "status",
+    type: "enum",
+    enumValues: ["PENDING", "SHIPPED"],
+  },
   { key: "total", label: "Total", graphqlPath: "total", type: "number" },
 ];
 
-const ORDER_MUTATIONS: { operation: MutationOperation; mutationName: string; inputTypeName: string }[] = [
+const ORDER_MUTATIONS: {
+  operation: MutationOperation;
+  mutationName: string;
+  inputTypeName: string;
+}[] = [
   { operation: "update", mutationName: "updateOrder", inputTypeName: "UpdateOrderInput" },
   { operation: "create", mutationName: "createOrder", inputTypeName: "CreateOrderInput" },
 ];
@@ -111,9 +127,7 @@ describe("createDriftFromRegistry", () => {
       fields: ORDER_FIELDS,
     });
 
-    await expect(drift.type("Customer")).rejects.toThrow(
-      'Type "Customer" was not provided',
-    );
+    await expect(drift.type("Customer")).rejects.toThrow('Type "Customer" was not provided');
   });
 
   it("supports multiple registries", async () => {
@@ -150,7 +164,13 @@ describe("createDriftFromRegistry", () => {
           Promise.resolve({
             data: {
               orders: [
-                { id: "1", orderNumber: "ORD-001", status: "SHIPPED", total: 99.99, createdAt: "2024-01-01" },
+                {
+                  id: "1",
+                  orderNumber: "ORD-001",
+                  status: "SHIPPED",
+                  total: 99.99,
+                  createdAt: "2024-01-01",
+                },
               ],
             },
           }),

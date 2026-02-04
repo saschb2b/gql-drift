@@ -16,12 +16,6 @@ export interface DriftCliConfig {
   headers: Record<string, string>;
 }
 
-const CONFIG_FILES = [
-  "gql-drift.config.ts",
-  "gql-drift.config.js",
-  "gql-drift.config.json",
-];
-
 /**
  * Attempt to load a config file from the current directory.
  * Returns null if none found.

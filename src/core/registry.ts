@@ -1,9 +1,4 @@
-import type {
-  DriftConfig,
-  FieldDefinition,
-  FieldType,
-  IntrospectionResult,
-} from "./types.js";
+import type { DriftConfig, FieldDefinition, FieldType, IntrospectionResult } from "./types.js";
 import { introspectType, unwrapType } from "./introspection.js";
 
 /** Default mapping from GraphQL scalar names to simplified types */
@@ -23,9 +18,7 @@ export function capitalize(s: string): string {
 
 /** Convert camelCase field name to a human-readable label */
 export function formatLabel(fieldName: string): string {
-  return fieldName
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .replace(/^./, (s) => s.toUpperCase());
+  return fieldName.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (s) => s.toUpperCase());
 }
 
 export interface BuildRegistryConfig {
@@ -66,15 +59,7 @@ export function buildRegistry(
   const nestedTypes = config?.nestedTypes ?? {};
   const labels = config?.labels ?? {};
 
-  const fields = buildRegistrySync(
-    introspection,
-    scalarMap,
-    nestedTypes,
-    maxDepth,
-    0,
-    "",
-    "",
-  );
+  const fields = buildRegistrySync(introspection, scalarMap, nestedTypes, maxDepth, 0, "", "");
 
   // Apply label overrides
   if (Object.keys(labels).length > 0) {
@@ -125,11 +110,7 @@ function buildRegistrySync(
           type: mappedType,
         });
       }
-    } else if (
-      unwrapped.kind === "OBJECT" &&
-      depth < maxDepth &&
-      unwrapped.name
-    ) {
+    } else if (unwrapped.kind === "OBJECT" && depth < maxDepth && unwrapped.name) {
       const nestedType = nestedTypes[unwrapped.name];
       if (nestedType) {
         const nestedFields = buildRegistrySync(
@@ -221,11 +202,7 @@ async function buildRegistryRecursive(
           type: mappedType,
         });
       }
-    } else if (
-      unwrapped.kind === "OBJECT" &&
-      depth < maxDepth &&
-      unwrapped.name
-    ) {
+    } else if (unwrapped.kind === "OBJECT" && depth < maxDepth && unwrapped.name) {
       const nestedType = await introspectType(unwrapped.name, config);
       const nestedFields = await buildRegistryRecursive(
         nestedType,
@@ -289,7 +266,5 @@ export function withLabels(
   fields: FieldDefinition[],
   labels: Record<string, string>,
 ): FieldDefinition[] {
-  return fields.map((f) =>
-    labels[f.key] ? { ...f, label: labels[f.key] } : f,
-  );
+  return fields.map((f) => (labels[f.key] ? { ...f, label: labels[f.key] } : f));
 }

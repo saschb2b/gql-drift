@@ -8,11 +8,11 @@ The single source of truth for the entire pipeline. Every module consumes or pro
 type FieldType = "string" | "number" | "date" | "boolean" | "enum";
 
 interface FieldDefinition {
-  key: string;            // Flat key for UI: "shippingAddressCity"
-  label: string;          // Human label: "Shipping Address City"
-  graphqlPath: string;    // Dot-notation path: "shippingAddress.city"
+  key: string; // Flat key for UI: "shippingAddressCity"
+  label: string; // Human label: "Shipping Address City"
+  graphqlPath: string; // Dot-notation path: "shippingAddress.city"
   type: FieldType;
-  enumValues?: string[];  // For enum fields: ["PENDING", "SHIPPED", "DELIVERED"]
+  enumValues?: string[]; // For enum fields: ["PENDING", "SHIPPED", "DELIVERED"]
 }
 ```
 
@@ -31,9 +31,9 @@ type DriftFetcher = (params: {
 interface DriftConfig {
   endpoint: string;
   headers?: Record<string, string>;
-  maxDepth?: number;                        // Nesting depth for introspection (default: 1)
-  scalarMap?: Record<string, FieldType>;    // Override scalar -> FieldType mapping
-  fetcher?: DriftFetcher;                   // Custom GraphQL client (overrides built-in fetch)
+  maxDepth?: number; // Nesting depth for introspection (default: 1)
+  scalarMap?: Record<string, FieldType>; // Override scalar -> FieldType mapping
+  fetcher?: DriftFetcher; // Custom GraphQL client (overrides built-in fetch)
 }
 ```
 
@@ -49,9 +49,9 @@ Resolved type metadata. Produced by `defineDriftType()` (from CLI-generated data
 interface DriftType {
   typeName: string;
   fields: FieldDefinition[];
-  mutations: Map<MutationOperation, string>;  // "update" -> "updateOrder"
+  mutations: Map<MutationOperation, string>; // "update" -> "updateOrder"
   inputFields: FieldDefinition[];
-  editableFields: FieldDefinition[];          // Intersection of fields + inputFields
+  editableFields: FieldDefinition[]; // Intersection of fields + inputFields
 }
 ```
 

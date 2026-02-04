@@ -1,20 +1,8 @@
-import type {
-  DriftConfig,
-  DriftType,
-  FieldDefinition,
-  MutationOperation,
-} from "./types.js";
-import { introspectType, discoverMutations } from "./introspection.js";
-import {
-  buildRegistryAsync,
-  buildInputRegistry,
-  getEditableFields,
-} from "./registry.js";
+import type { DriftConfig, DriftType, FieldDefinition, MutationOperation } from "./types.js";
+import { discoverMutations } from "./introspection.js";
+import { buildRegistryAsync, buildInputRegistry, getEditableFields } from "./registry.js";
 import { buildQuery, type BuildQueryOptions } from "./query-builder.js";
-import {
-  buildUpdateMutation,
-  buildCreateMutation,
-} from "./mutation-builder.js";
+import { buildUpdateMutation, buildCreateMutation } from "./mutation-builder.js";
 import { flatten, unflatten } from "./flatten.js";
 import { gqlFetch } from "./fetch.js";
 
@@ -52,11 +40,7 @@ export interface DriftClient {
   /**
    * Build a query string for a type. Convenience wrapper around buildQuery.
    */
-  query(
-    queryName: string,
-    fields: FieldDefinition[],
-    options?: BuildQueryOptions,
-  ): string;
+  query(queryName: string, fields: FieldDefinition[], options?: BuildQueryOptions): string;
 
   /**
    * Execute a query against the endpoint and return flattened rows.
@@ -177,8 +161,7 @@ export function defineDriftType(options: StaticRegistryOptions): DriftType {
   }
 
   const resolvedInputFields = inputFields ?? fields;
-  const editableFields =
-    options.editableFields ?? getEditableFields(fields, resolvedInputFields);
+  const editableFields = options.editableFields ?? getEditableFields(fields, resolvedInputFields);
 
   return {
     typeName,
@@ -237,11 +220,10 @@ function createClientFromResolver(
     async fetch(queryName, type, options) {
       const fields = options?.fields ?? type.fields;
       const queryStr = buildQuery(queryName, fields, options?.queryOptions);
-      const data = (await gqlFetch(
-        config,
-        queryStr,
-        options?.variables,
-      )) as Record<string, unknown>;
+      const data = (await gqlFetch(config, queryStr, options?.variables)) as Record<
+        string,
+        unknown
+      >;
 
       const list = data[queryName];
       const rows = Array.isArray(list)

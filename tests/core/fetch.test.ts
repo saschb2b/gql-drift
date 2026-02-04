@@ -76,9 +76,7 @@ describe("gqlFetch", () => {
       vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(mockResponse as Response);
 
       const config: DriftConfig = { endpoint: "http://localhost:4000/graphql" };
-      await expect(gqlFetch(config, "query { orders { id } }")).rejects.toThrow(
-        "Field not found",
-      );
+      await expect(gqlFetch(config, "query { orders { id } }")).rejects.toThrow("Field not found");
     });
 
     it("passes variables to the request body", async () => {
@@ -122,9 +120,7 @@ describe("gqlFetch", () => {
         endpoint: "http://localhost:4000/graphql",
         fetcher: customFetcher,
       };
-      await expect(gqlFetch(config, "query { orders { id } }")).rejects.toThrow(
-        "Auth failed",
-      );
+      await expect(gqlFetch(config, "query { orders { id } }")).rejects.toThrow("Auth failed");
     });
 
     it("works with graphql-request style client", async () => {

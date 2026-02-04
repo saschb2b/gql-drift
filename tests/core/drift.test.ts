@@ -153,13 +153,11 @@ describe("createDrift", () => {
       const mockFetch = mockFetchForIntrospection();
 
       // After introspection calls, the next call will be the data query
-      let callCount = 0;
       mockFetch.mockImplementation((_url: string, init: RequestInit) => {
         const body = JSON.parse(init.body as string);
 
         // Introspection queries have variables.typeName
         if (body.variables?.typeName) {
-          callCount++;
           const typeName = body.variables.typeName;
           let responseData;
           if (typeName === "Order") responseData = orderTypeResponse;
@@ -188,7 +186,7 @@ describe("createDrift", () => {
 
       const drift = createDrift(config);
       const order = await drift.type("Order");
-      const { rows, raw } = await drift.fetch("orders", order);
+      const { rows } = await drift.fetch("orders", order);
 
       expect(rows).toHaveLength(2);
       expect(rows[0]).toEqual({
@@ -288,9 +286,9 @@ describe("createDrift", () => {
       const drift = createDrift(config);
       const order = await drift.type("Order");
 
-      await expect(
-        drift.update(order, { values: { status: "shipped" } }),
-      ).rejects.toThrow("Update requires an id");
+      await expect(drift.update(order, { values: { status: "shipped" } })).rejects.toThrow(
+        "Update requires an id",
+      );
     });
   });
 

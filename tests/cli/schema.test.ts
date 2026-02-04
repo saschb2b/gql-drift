@@ -80,9 +80,7 @@ describe("schema parsing", () => {
     it("throws on invalid SDL content", () => {
       const badPath = resolve(TMP_DIR, "bad.graphql");
       writeFileSync(badPath, "not valid graphql {{{");
-      expect(() => loadSchemaFromFile(badPath)).toThrow(
-        /Failed to parse schema file/,
-      );
+      expect(() => loadSchemaFromFile(badPath)).toThrow(/Failed to parse schema file/);
     });
   });
 
@@ -126,9 +124,7 @@ describe("schema parsing", () => {
 
     it("throws for non-existent type", () => {
       const schema = loadSchemaFromFile(SCHEMA_PATH);
-      expect(() =>
-        introspectTypeFromSchema("NonExistent", schema),
-      ).toThrow(/not found in schema/);
+      expect(() => introspectTypeFromSchema("NonExistent", schema)).toThrow(/not found in schema/);
     });
 
     it("introspects nested OBJECT types", () => {
@@ -163,10 +159,7 @@ describe("schema parsing", () => {
 
     it("handles schemas without Mutation type", () => {
       const noMutationPath = resolve(TMP_DIR, "no-mutation.graphql");
-      writeFileSync(
-        noMutationPath,
-        "type Query { hello: String }\ntype Foo { id: ID! }",
-      );
+      writeFileSync(noMutationPath, "type Query { hello: String }\ntype Foo { id: ID! }");
 
       const schema = loadSchemaFromFile(noMutationPath);
       const mutations = discoverMutationsFromSchema("Foo", schema);

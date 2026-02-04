@@ -43,9 +43,7 @@ describe("full pipeline", () => {
 
   it("builds a query from registry fields", () => {
     const fields = buildRegistry(mockIntrospection);
-    const selected = fields.filter((f) =>
-      ["orderNumber", "status", "total"].includes(f.key),
-    );
+    const selected = fields.filter((f) => ["orderNumber", "status", "total"].includes(f.key));
 
     const query = buildQuery("orders", selected, { filter: "OrderFilter" });
 
@@ -62,8 +60,18 @@ describe("full pipeline", () => {
     const fields: FieldDefinition[] = [
       { key: "orderNumber", label: "Order Number", graphqlPath: "orderNumber", type: "string" },
       { key: "status", label: "Status", graphqlPath: "status", type: "string" },
-      { key: "shippingAddressCity", label: "City", graphqlPath: "shippingAddress.city", type: "string" },
-      { key: "shippingAddressCountry", label: "Country", graphqlPath: "shippingAddress.country", type: "string" },
+      {
+        key: "shippingAddressCity",
+        label: "City",
+        graphqlPath: "shippingAddress.city",
+        type: "string",
+      },
+      {
+        key: "shippingAddressCountry",
+        label: "Country",
+        graphqlPath: "shippingAddress.country",
+        type: "string",
+      },
     ];
 
     // Simulate API response
@@ -100,9 +108,7 @@ describe("full pipeline", () => {
 
   it("builds update mutation from registry", () => {
     const fields = buildRegistry(mockIntrospection);
-    const selected = fields.filter((f) =>
-      ["status", "total"].includes(f.key),
-    );
+    const selected = fields.filter((f) => ["status", "total"].includes(f.key));
 
     const mutation = buildUpdateMutation("Order", selected);
 
@@ -115,9 +121,7 @@ describe("full pipeline", () => {
 
   it("builds create mutation from registry", () => {
     const fields = buildRegistry(mockIntrospection);
-    const selected = fields.filter((f) =>
-      ["orderNumber", "status"].includes(f.key),
-    );
+    const selected = fields.filter((f) => ["orderNumber", "status"].includes(f.key));
 
     const mutation = buildCreateMutation("Order", selected);
 
@@ -132,9 +136,7 @@ describe("full pipeline", () => {
     expect(registry.length).toBeGreaterThan(0);
 
     // 2. User selects fields
-    const selected = registry.filter((f) =>
-      ["orderNumber", "status", "total"].includes(f.key),
-    );
+    const selected = registry.filter((f) => ["orderNumber", "status", "total"].includes(f.key));
     expect(selected).toHaveLength(3);
 
     // 3. Build query

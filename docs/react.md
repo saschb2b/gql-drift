@@ -27,6 +27,7 @@ Follows the [TanStack Query v5 `queryOptions` pattern](https://tkdodo.eu/blog/th
 `queryName` defaults to `lowercase(typeName) + "s"`. `fields` defaults to `type.fields`.
 
 **Consumer usage:**
+
 ```tsx
 const config = useDriftConfig();
 const { data } = useQuery({ ...driftQueryOptions({ type: orderType, config }) });
@@ -67,8 +68,8 @@ The CLI generates options factories that close over the `DriftType`, so consumer
 
 ```ts
 // From src/generated/order.ts:
-orderQueryOptions({ config })            // type + queryName pre-filled
-updateOrderMutation({ config })
-createOrderMutation({ config })
-orderQueryKey()
+orderQueryOptions({ config }); // type + queryName pre-filled
+updateOrderMutation({ config });
+createOrderMutation({ config });
+orderQueryKey();
 ```

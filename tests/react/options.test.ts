@@ -16,7 +16,13 @@ const orderType: DriftType = {
   fields: [
     { key: "orderNumber", label: "Order Number", graphqlPath: "orderNumber", type: "string" },
     { key: "total", label: "Total", graphqlPath: "total", type: "number" },
-    { key: "status", label: "Status", graphqlPath: "status", type: "enum", enumValues: ["PENDING", "SHIPPED"] },
+    {
+      key: "status",
+      label: "Status",
+      graphqlPath: "status",
+      type: "enum",
+      enumValues: ["PENDING", "SHIPPED"],
+    },
   ],
   mutations: new Map([
     ["update", "updateOrder"],
@@ -93,9 +99,7 @@ describe("driftQueryOptions", () => {
       ok: true,
       json: async () => ({
         data: {
-          orders: [
-            { id: "1", orderNumber: "ORD-001", total: 99.99, status: "PENDING" },
-          ],
+          orders: [{ id: "1", orderNumber: "ORD-001", total: 99.99, status: "PENDING" }],
         },
       }),
     };
@@ -113,9 +117,7 @@ describe("driftQueryOptions", () => {
     );
 
     // Should return flattened rows
-    expect(rows).toEqual([
-      { id: "1", orderNumber: "ORD-001", total: 99.99, status: "PENDING" },
-    ]);
+    expect(rows).toEqual([{ id: "1", orderNumber: "ORD-001", total: 99.99, status: "PENDING" }]);
   });
 
   it("returns empty array when response has no matching query name", async () => {
@@ -189,9 +191,7 @@ describe("driftUpdateMutation", () => {
     );
 
     // Verify the body contains the unflattened input
-    const callBody = JSON.parse(
-      (globalThis.fetch as any).mock.calls[0][1].body,
-    );
+    const callBody = JSON.parse((globalThis.fetch as any).mock.calls[0][1].body);
     expect(callBody.variables.id).toBe("1");
     expect(callBody.variables.input).toEqual({ orderNumber: "NEW-001", total: 50 });
   });
@@ -217,9 +217,7 @@ describe("driftCreateMutation", () => {
     const opts = driftCreateMutation({ type: orderType, config });
     await opts.mutationFn({ values: { orderNumber: "ORD-999", total: 42 } });
 
-    const callBody = JSON.parse(
-      (globalThis.fetch as any).mock.calls[0][1].body,
-    );
+    const callBody = JSON.parse((globalThis.fetch as any).mock.calls[0][1].body);
     expect(callBody.variables.input).toEqual({ orderNumber: "ORD-999", total: 42 });
   });
 });

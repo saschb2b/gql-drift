@@ -1,9 +1,6 @@
 import type { DriftConfig, DriftType, FieldDefinition } from "../core/types.js";
 import { buildQuery } from "../core/query-builder.js";
-import {
-  buildUpdateMutation,
-  buildCreateMutation,
-} from "../core/mutation-builder.js";
+import { buildUpdateMutation, buildCreateMutation } from "../core/mutation-builder.js";
 import { flatten, unflatten } from "../core/flatten.js";
 import { gqlFetch } from "../core/fetch.js";
 
@@ -94,20 +91,15 @@ export function driftQueryOptions(params: DriftQueryOptionsParams) {
 
   const queryKey = driftQueryKey({ type, queryName: qName, fields, filter });
 
-  const query = buildQuery(
-    qName,
-    fields,
-    filterType ? { filter: filterType } : undefined,
-  );
+  const query = buildQuery(qName, fields, filterType ? { filter: filterType } : undefined);
 
   return {
     queryKey,
     queryFn: async () => {
-      const data = (await gqlFetch(
-        config,
-        query,
-        filter ? { filter } : undefined,
-      )) as Record<string, unknown>;
+      const data = (await gqlFetch(config, query, filter ? { filter } : undefined)) as Record<
+        string,
+        unknown
+      >;
       const list = data[qName];
       if (!Array.isArray(list)) return [];
       return list.map((item: Record<string, unknown>) => flatten(item, fields));
@@ -151,19 +143,8 @@ export function driftUpdateMutation(params: DriftUpdateMutationParams) {
   const mutationStr = buildUpdateMutation(type.typeName, returnFields);
 
   return {
-    mutationFn: async ({
-      id,
-      values,
-    }: {
-      id: string;
-      values: Record<string, unknown>;
-    }) => {
-      const validated = await runValidation(
-        values,
-        editableFields,
-        validate,
-        validateFn,
-      );
+    mutationFn: async ({ id, values }: { id: string; values: Record<string, unknown> }) => {
+      const validated = await runValidation(values, editableFields, validate, validateFn);
       const input = unflatten(validated, editableFields);
       return gqlFetch(config, mutationStr, { id, input });
     },
@@ -201,19 +182,13 @@ export interface DriftCreateMutationParams {
 export function driftCreateMutation(params: DriftCreateMutationParams) {
   const { type, config, validate, validateFn } = params;
   const returnFields = params.fields ?? type.fields;
-  const inputFields =
-    type.inputFields.length > 0 ? type.inputFields : type.editableFields;
+  const inputFields = type.inputFields.length > 0 ? type.inputFields : type.editableFields;
 
   const mutationStr = buildCreateMutation(type.typeName, returnFields);
 
   return {
     mutationFn: async ({ values }: { values: Record<string, unknown> }) => {
-      const validated = await runValidation(
-        values,
-        inputFields,
-        validate,
-        validateFn,
-      );
+      const validated = await runValidation(values, inputFields, validate, validateFn);
       const input = unflatten(validated, inputFields);
       return gqlFetch(config, mutationStr, { input });
     },

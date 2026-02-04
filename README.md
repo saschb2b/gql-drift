@@ -139,14 +139,14 @@ import { orderType } from "./generated/order";
 
 function OrderTable() {
   const {
-    registry,        // all available fields
-    selectedFields,  // currently active fields
-    toggleField,     // toggle a field by key
-    rows,            // flattened query results
+    registry, // all available fields
+    selectedFields, // currently active fields
+    toggleField, // toggle a field by key
+    rows, // flattened query results
     isLoading,
-    format,          // format a cell value for display
-    updateRow,       // (id, values) => Promise
-    createRow,       // (values) => Promise
+    format, // format a cell value for display
+    updateRow, // (id, values) => Promise
+    createRow, // (values) => Promise
   } = useDriftType({ type: orderType });
 
   return (
@@ -165,7 +165,9 @@ function OrderTable() {
       <table>
         <thead>
           <tr>
-            {selectedFields.map((f) => <th key={f.key}>{f.label}</th>)}
+            {selectedFields.map((f) => (
+              <th key={f.key}>{f.label}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -198,10 +200,12 @@ const client = new GraphQLClient("/graphql", {
   headers: { Authorization: `Bearer ${token}` },
 });
 
-<DriftProvider config={{
-  endpoint: "/graphql",
-  fetcher: ({ query, variables }) => client.request(query, variables),
-}} />
+<DriftProvider
+  config={{
+    endpoint: "/graphql",
+    fetcher: ({ query, variables }) => client.request(query, variables),
+  }}
+/>;
 ```
 
 The `fetcher` receives `{ query, variables }` and returns the `data` portion of the response. When provided, `endpoint` and `headers` are ignored — your client owns the transport.
@@ -218,7 +222,7 @@ fetcher: async ({ query, variables }) => {
   const result = await client.query(query, variables).toPromise();
   if (result.error) throw result.error;
   return result.data;
-}
+};
 ```
 
 **Apollo Client**
@@ -230,7 +234,7 @@ import { gql } from "@apollo/client";
 fetcher: async ({ query, variables }) => {
   const { data } = await client.query({ query: gql(query), variables });
   return data;
-}
+};
 ```
 
 </details>
@@ -295,10 +299,10 @@ The single unit that flows through the entire pipeline:
 
 ```ts
 interface FieldDefinition {
-  key: string;           // Flat key: "shippingAddressCity"
-  label: string;         // Human label: "Shipping Address City"
-  graphqlPath: string;   // Nested path: "shippingAddress.city"
-  type: FieldType;       // "string" | "number" | "date" | "boolean" | "enum"
+  key: string; // Flat key: "shippingAddressCity"
+  label: string; // Human label: "Shipping Address City"
+  graphqlPath: string; // Nested path: "shippingAddress.city"
+  type: FieldType; // "string" | "number" | "date" | "boolean" | "enum"
   enumValues?: string[]; // ["PENDING", "SHIPPED", "DELIVERED"]
 }
 ```
@@ -319,9 +323,9 @@ Registry: { key: "shippingAddressCity", graphqlPath: "shippingAddress.city" }
 ```ts
 import { formatValue, inputType, parseInput } from "gql-drift";
 
-formatValue(field, value)   // "99.99" | "true" | "Jan 1, 2024"
-inputType(field)            // "text" | "number" | "date" | "checkbox" | "select"
-parseInput(field, rawValue) // string → number, "true" → boolean, etc.
+formatValue(field, value); // "99.99" | "true" | "Jan 1, 2024"
+inputType(field); // "text" | "number" | "date" | "checkbox" | "select"
+parseInput(field, rawValue); // string → number, "true" → boolean, etc.
 ```
 
 ---
@@ -347,23 +351,23 @@ Config file values are defaults. CLI flags override them.
 
 ## Entry Points
 
-| Import | Contents |
-|---|---|
-| `gql-drift` | Core: types, introspection, registry, query/mutation builders, flatten, rendering helpers |
-| `gql-drift/react` | `DriftProvider`, `useDriftType`, options factories |
-| `gql-drift/zod` | `buildResultSchema`, `buildInputSchema` |
-| `gql-drift/cli` | CLI entry point (`npx gql-drift`) |
+| Import            | Contents                                                                                  |
+| ----------------- | ----------------------------------------------------------------------------------------- |
+| `gql-drift`       | Core: types, introspection, registry, query/mutation builders, flatten, rendering helpers |
+| `gql-drift/react` | `DriftProvider`, `useDriftType`, options factories                                        |
+| `gql-drift/zod`   | `buildResultSchema`, `buildInputSchema`                                                   |
+| `gql-drift/cli`   | CLI entry point (`npx gql-drift`)                                                         |
 
 All entry points are tree-shakeable. ESM and CJS.
 
 ## Peer Dependencies
 
-| Package | Used by | Required |
-|---|---|---|
-| `react` | `gql-drift/react` | No |
-| `@tanstack/react-query` | `gql-drift/react` | No |
-| `zod` | `gql-drift/zod` | No |
-| `graphql` | `--schema` flag | No |
+| Package                 | Used by           | Required |
+| ----------------------- | ----------------- | -------- |
+| `react`                 | `gql-drift/react` | No       |
+| `@tanstack/react-query` | `gql-drift/react` | No       |
+| `zod`                   | `gql-drift/zod`   | No       |
+| `graphql`               | `--schema` flag   | No       |
 
 The core package has zero dependencies.
 

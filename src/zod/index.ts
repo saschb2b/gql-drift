@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { FieldDefinition, FieldType } from "../core/types.js";
+import type { FieldDefinition } from "../core/types.js";
 
 function zodTypeForField(field: FieldDefinition): z.ZodTypeAny {
   switch (field.type) {

@@ -4,11 +4,7 @@ import type { FieldDefinition } from "../../src/core/types.js";
 
 describe("buildSelectionSet", () => {
   it("returns root fields as-is", () => {
-    expect(buildSelectionSet(["id", "status", "total"])).toEqual([
-      "id",
-      "status",
-      "total",
-    ]);
+    expect(buildSelectionSet(["id", "status", "total"])).toEqual(["id", "status", "total"]);
   });
 
   it("groups nested paths", () => {
@@ -62,8 +58,18 @@ describe("buildQuery", () => {
   it("groups nested fields correctly", () => {
     const nestedFields: FieldDefinition[] = [
       ...fields,
-      { key: "shippingAddressCity", label: "City", graphqlPath: "shippingAddress.city", type: "string" },
-      { key: "shippingAddressCountry", label: "Country", graphqlPath: "shippingAddress.country", type: "string" },
+      {
+        key: "shippingAddressCity",
+        label: "City",
+        graphqlPath: "shippingAddress.city",
+        type: "string",
+      },
+      {
+        key: "shippingAddressCountry",
+        label: "Country",
+        graphqlPath: "shippingAddress.country",
+        type: "string",
+      },
     ];
 
     const query = buildQuery("orders", nestedFields);

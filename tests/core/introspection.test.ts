@@ -81,9 +81,12 @@ describe("introspectType", () => {
 
     const result = await introspectType("Order", config);
     expect(result).toEqual(mockResult);
-    expect(fetch).toHaveBeenCalledWith(config.endpoint, expect.objectContaining({
-      method: "POST",
-    }));
+    expect(fetch).toHaveBeenCalledWith(
+      config.endpoint,
+      expect.objectContaining({
+        method: "POST",
+      }),
+    );
   });
 
   it("throws on HTTP error", async () => {
@@ -125,9 +128,7 @@ describe("introspectType", () => {
       }),
     );
 
-    await expect(introspectType("Order", config)).rejects.toThrow(
-      "Introspection disabled",
-    );
+    await expect(introspectType("Order", config)).rejects.toThrow("Introspection disabled");
   });
 
   it("passes custom headers", async () => {
@@ -202,9 +203,7 @@ describe("discoverMutations", () => {
             data: {
               __type: {
                 name: "Mutation",
-                fields: [
-                  { name: "doSomething", type: { name: null, kind: "OBJECT" } },
-                ],
+                fields: [{ name: "doSomething", type: { name: null, kind: "OBJECT" } }],
               },
             },
           }),

@@ -38,7 +38,13 @@ describe("buildRegistry with labels option", () => {
 describe("withLabels", () => {
   const fields: FieldDefinition[] = [
     { key: "orderNumber", label: "Order Number", graphqlPath: "orderNumber", type: "string" },
-    { key: "status", label: "Status", graphqlPath: "status", type: "enum", enumValues: ["PENDING"] },
+    {
+      key: "status",
+      label: "Status",
+      graphqlPath: "status",
+      type: "enum",
+      enumValues: ["PENDING"],
+    },
     { key: "createdAt", label: "Created At", graphqlPath: "createdAt", type: "date" },
   ];
 

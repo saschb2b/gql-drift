@@ -6,8 +6,18 @@ const fields: FieldDefinition[] = [
   { key: "orderNumber", label: "Order Number", graphqlPath: "orderNumber", type: "string" },
   { key: "status", label: "Status", graphqlPath: "status", type: "string" },
   { key: "total", label: "Total", graphqlPath: "total", type: "number" },
-  { key: "shippingAddressCity", label: "City", graphqlPath: "shippingAddress.city", type: "string" },
-  { key: "shippingAddressCountry", label: "Country", graphqlPath: "shippingAddress.country", type: "string" },
+  {
+    key: "shippingAddressCity",
+    label: "City",
+    graphqlPath: "shippingAddress.city",
+    type: "string",
+  },
+  {
+    key: "shippingAddressCountry",
+    label: "Country",
+    graphqlPath: "shippingAddress.country",
+    type: "string",
+  },
 ];
 
 describe("flatten", () => {
@@ -104,9 +114,7 @@ describe("unflatten", () => {
 describe("flatten + unflatten round-trip", () => {
   it("round-trips correctly for top-level fields", () => {
     const original = { status: "shipped", total: 99.99 };
-    const topFields = fields.filter(
-      (f) => !f.graphqlPath.includes("."),
-    );
+    const topFields = fields.filter((f) => !f.graphqlPath.includes("."));
 
     const nested = unflatten(original, topFields);
     const flat = flatten({ id: "1", ...nested }, topFields);
@@ -119,9 +127,7 @@ describe("flatten + unflatten round-trip", () => {
       shippingAddressCity: "Berlin",
       shippingAddressCountry: "DE",
     };
-    const nestedFields = fields.filter((f) =>
-      f.graphqlPath.includes("."),
-    );
+    const nestedFields = fields.filter((f) => f.graphqlPath.includes("."));
 
     const nested = unflatten(original, nestedFields);
     expect(nested).toEqual({

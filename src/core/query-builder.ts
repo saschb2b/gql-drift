@@ -23,9 +23,7 @@ export function buildSelectionSet(paths: string[]): string[] {
 
   return [
     ...roots,
-    ...[...nested.entries()].map(
-      ([parent, children]) => `${parent} { ${children.join(" ")} }`,
-    ),
+    ...[...nested.entries()].map(([parent, children]) => `${parent} { ${children.join(" ")} }`),
   ];
 }
 

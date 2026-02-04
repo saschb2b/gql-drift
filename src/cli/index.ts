@@ -2,12 +2,8 @@
 
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { introspectType, discoverMutations } from "../core/introspection.js";
-import {
-  buildRegistryAsync,
-  buildInputRegistry,
-  getEditableFields,
-} from "../core/registry.js";
+import { discoverMutations } from "../core/introspection.js";
+import { buildRegistryAsync, buildInputRegistry, getEditableFields } from "../core/registry.js";
 import { buildRegistry } from "../core/registry.js";
 import { getInputTypeName } from "../core/mutation-builder.js";
 import { unwrapType } from "../core/introspection.js";
@@ -56,9 +52,7 @@ Examples:
 // Arg parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(
-  args: string[],
-): Partial<DriftCliConfig> & { command?: string } {
+function parseArgs(args: string[]): Partial<DriftCliConfig> & { command?: string } {
   const parsed: Partial<DriftCliConfig> & { command?: string } = {
     headers: {},
   };
@@ -91,9 +85,7 @@ function parseArgs(
         const val = args[++i];
         const colon = val?.indexOf(":");
         if (colon && colon > 0) {
-          parsed.headers![val.slice(0, colon).trim()] = val
-            .slice(colon + 1)
-            .trim();
+          parsed.headers![val.slice(0, colon).trim()] = val.slice(colon + 1).trim();
         }
         break;
       }
@@ -344,11 +336,8 @@ async function generateFromSchema(
   mutations: Map<MutationOperation, string>;
 }> {
   // Dynamic import so graphql isn't required unless --schema is used
-  const {
-    loadSchemaFromFile,
-    introspectTypeFromSchema,
-    discoverMutationsFromSchema,
-  } = await import("./schema.js");
+  const { loadSchemaFromFile, introspectTypeFromSchema, discoverMutationsFromSchema } =
+    await import("./schema.js");
   const schema = loadSchemaFromFile(schemaPath);
 
   const introspection = introspectTypeFromSchema(typeName, schema);
@@ -358,16 +347,9 @@ async function generateFromSchema(
   if (depth > 0) {
     for (const field of introspection.fields) {
       const unwrapped = unwrapType(field.type);
-      if (
-        unwrapped.kind === "OBJECT" &&
-        unwrapped.name &&
-        unwrapped.name !== typeName
-      ) {
+      if (unwrapped.kind === "OBJECT" && unwrapped.name && unwrapped.name !== typeName) {
         try {
-          nestedTypes[unwrapped.name] = introspectTypeFromSchema(
-            unwrapped.name,
-            schema,
-          );
+          nestedTypes[unwrapped.name] = introspectTypeFromSchema(unwrapped.name, schema);
         } catch {
           // Skip unresolvable nested types
         }
@@ -400,9 +382,7 @@ async function generateFromSchema(
 
 async function runGenerate(config: DriftCliConfig) {
   if (!config.endpoint && !config.schema) {
-    console.error(
-      "Error: either --endpoint or --schema is required (or set in config file)",
-    );
+    console.error("Error: either --endpoint or --schema is required (or set in config file)");
     printUsage();
     process.exit(1);
   }
@@ -448,13 +428,7 @@ async function runGenerate(config: DriftCliConfig) {
         inputTypeName: getInputTypeName(typeName, op),
       }));
 
-      const output = buildOutputFile(
-        typeName,
-        fields,
-        inputFields,
-        editableFields,
-        mutationInfo,
-      );
+      const output = buildOutputFile(typeName, fields, inputFields, editableFields, mutationInfo);
 
       const filePath = resolve(outDir, `${typeName.toLowerCase()}.ts`);
       writeFileSync(filePath, output);

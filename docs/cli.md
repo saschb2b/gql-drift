@@ -42,10 +42,10 @@ Loads from (in order): `gql-drift.config.json`, `gql-drift.config.ts`, `gql-drif
 ```ts
 interface DriftCliConfig {
   endpoint?: string;
-  schema?: string;      // path to local .graphql file
+  schema?: string; // path to local .graphql file
   types: string[];
-  out: string;          // default: "src/generated"
-  depth: number;        // default: 1
+  out: string; // default: "src/generated"
+  depth: number; // default: 1
   headers: Record<string, string>;
 }
 ```
@@ -71,16 +71,16 @@ For a type `Order`, the CLI generates `src/generated/order.ts`:
 ```ts
 // Data exports
 export const ORDER_FIELDS: FieldDefinition[];
-export const ORDER_INPUT_FIELDS: FieldDefinition[];      // if input type exists
-export const ORDER_EDITABLE_FIELDS: FieldDefinition[];   // if input type exists
-export const ORDER_MUTATIONS: { operation, mutationName, inputTypeName }[];
-export const orderType: DriftType;                        // via defineDriftType()
+export const ORDER_INPUT_FIELDS: FieldDefinition[]; // if input type exists
+export const ORDER_EDITABLE_FIELDS: FieldDefinition[]; // if input type exists
+export const ORDER_MUTATIONS: { operation; mutationName; inputTypeName }[];
+export const orderType: DriftType; // via defineDriftType()
 
 // TanStack Query options factories (close over orderType)
-export function orderQueryOptions(params);                // -> { queryKey, queryFn }
-export function updateOrderMutation(params);              // -> { mutationFn } (if update exists)
-export function createOrderMutation(params);              // -> { mutationFn } (if create exists)
-export function orderQueryKey(params?);                   // -> unknown[]
+export function orderQueryOptions(params); // -> { queryKey, queryFn }
+export function updateOrderMutation(params); // -> { mutationFn } (if update exists)
+export function createOrderMutation(params); // -> { mutationFn } (if create exists)
+export function orderQueryKey(params?); // -> unknown[]
 ```
 
 Imports from `gql-drift` and `gql-drift/react`. Mutation factories are only generated when the corresponding mutation exists in the schema.

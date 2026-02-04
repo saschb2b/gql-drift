@@ -5,10 +5,7 @@ import { buildSelectionSet } from "./query-builder.js";
  * Get the mutation name for a type and operation by convention.
  * e.g. getMutationName("Order", "update") -> "updateOrder"
  */
-export function getMutationName(
-  typeName: string,
-  operation: MutationOperation,
-): string {
+export function getMutationName(typeName: string, operation: MutationOperation): string {
   return `${operation}${typeName}`;
 }
 
@@ -16,12 +13,8 @@ export function getMutationName(
  * Get the input type name for a type and operation by convention.
  * e.g. getInputTypeName("Order", "update") -> "UpdateOrderInput"
  */
-export function getInputTypeName(
-  typeName: string,
-  operation: MutationOperation,
-): string {
-  const capitalizedOp =
-    operation.charAt(0).toUpperCase() + operation.slice(1);
+export function getInputTypeName(typeName: string, operation: MutationOperation): string {
+  const capitalizedOp = operation.charAt(0).toUpperCase() + operation.slice(1);
   return `${capitalizedOp}${typeName}Input`;
 }
 
@@ -44,8 +37,7 @@ export function buildUpdateMutation(
   const paths = ["id", ...returnFields.map((f) => f.graphqlPath)];
   const selections = buildSelectionSet(paths);
 
-  const capitalized =
-    mutationName.charAt(0).toUpperCase() + mutationName.slice(1);
+  const capitalized = mutationName.charAt(0).toUpperCase() + mutationName.slice(1);
 
   return `mutation ${capitalized}($id: ID!, $input: ${inputType}!) {
   ${mutationName}(id: $id, input: $input) {
@@ -73,8 +65,7 @@ export function buildCreateMutation(
   const paths = ["id", ...returnFields.map((f) => f.graphqlPath)];
   const selections = buildSelectionSet(paths);
 
-  const capitalized =
-    mutationName.charAt(0).toUpperCase() + mutationName.slice(1);
+  const capitalized = mutationName.charAt(0).toUpperCase() + mutationName.slice(1);
 
   return `mutation ${capitalized}($input: ${inputType}!) {
   ${mutationName}(input: $input) {

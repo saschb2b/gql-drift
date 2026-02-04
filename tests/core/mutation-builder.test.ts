@@ -60,7 +60,12 @@ describe("buildUpdateMutation", () => {
   it("handles nested return fields", () => {
     const nestedFields: FieldDefinition[] = [
       ...fields,
-      { key: "shippingAddressCity", label: "City", graphqlPath: "shippingAddress.city", type: "string" },
+      {
+        key: "shippingAddressCity",
+        label: "City",
+        graphqlPath: "shippingAddress.city",
+        type: "string",
+      },
     ];
 
     const mutation = buildUpdateMutation("Order", nestedFields);

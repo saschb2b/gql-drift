@@ -3,19 +3,34 @@ import { formatValue, inputType, parseInput, isEditable } from "../../src/core/r
 import type { FieldDefinition } from "../../src/core/types.js";
 
 const stringField: FieldDefinition = {
-  key: "name", label: "Name", graphqlPath: "name", type: "string",
+  key: "name",
+  label: "Name",
+  graphqlPath: "name",
+  type: "string",
 };
 const numberField: FieldDefinition = {
-  key: "total", label: "Total", graphqlPath: "total", type: "number",
+  key: "total",
+  label: "Total",
+  graphqlPath: "total",
+  type: "number",
 };
 const dateField: FieldDefinition = {
-  key: "createdAt", label: "Created", graphqlPath: "createdAt", type: "date",
+  key: "createdAt",
+  label: "Created",
+  graphqlPath: "createdAt",
+  type: "date",
 };
 const boolField: FieldDefinition = {
-  key: "isActive", label: "Active", graphqlPath: "isActive", type: "boolean",
+  key: "isActive",
+  label: "Active",
+  graphqlPath: "isActive",
+  type: "boolean",
 };
 const enumField: FieldDefinition = {
-  key: "status", label: "Status", graphqlPath: "status", type: "enum",
+  key: "status",
+  label: "Status",
+  graphqlPath: "status",
+  type: "enum",
   enumValues: ["PENDING", "SHIPPED", "DELIVERED"],
 };
 

@@ -12,11 +12,7 @@ export type {
 } from "./core/types.js";
 
 // Drift client
-export {
-  createDrift,
-  createDriftFromRegistry,
-  defineDriftType,
-} from "./core/drift.js";
+export { createDrift, createDriftFromRegistry, defineDriftType } from "./core/drift.js";
 export type {
   DriftClient,
   DriftFetchOptions,
@@ -25,11 +21,7 @@ export type {
 } from "./core/drift.js";
 
 // Introspection
-export {
-  introspectType,
-  discoverMutations,
-  unwrapType,
-} from "./core/introspection.js";
+export { introspectType, discoverMutations, unwrapType } from "./core/introspection.js";
 
 // Registry
 export {
@@ -63,10 +55,5 @@ export { gqlFetch } from "./core/fetch.js";
 export { flatten, unflatten } from "./core/flatten.js";
 
 // Rendering helpers
-export {
-  formatValue,
-  inputType,
-  parseInput,
-  isEditable,
-} from "./core/render.js";
+export { formatValue, inputType, parseInput, isEditable } from "./core/render.js";
 export type { HtmlInputType } from "./core/render.js";

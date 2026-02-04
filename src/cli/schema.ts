@@ -1,15 +1,6 @@
 import { readFileSync } from "node:fs";
-import {
-  buildSchema,
-  graphqlSync,
-  type GraphQLSchema,
-  type IntrospectionQuery,
-} from "graphql";
-import type {
-  IntrospectionResult,
-  IntrospectionField,
-  MutationOperation,
-} from "../core/types.js";
+import { buildSchema, graphqlSync, type GraphQLSchema } from "graphql";
+import type { IntrospectionResult, IntrospectionField, MutationOperation } from "../core/types.js";
 
 /**
  * Build a GraphQL schema from an SDL file path.
@@ -19,9 +10,7 @@ export function loadSchemaFromFile(path: string): GraphQLSchema {
   try {
     return buildSchema(sdl);
   } catch (err) {
-    throw new Error(
-      `Failed to parse schema file "${path}": ${(err as Error).message}`,
-    );
+    throw new Error(`Failed to parse schema file "${path}": ${(err as Error).message}`);
   }
 }
 

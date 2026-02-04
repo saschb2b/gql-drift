@@ -1,23 +1,11 @@
 import { useState, useMemo, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { UseMutationResult } from "@tanstack/react-query";
-import type {
-  FieldDefinition,
-  DriftConfig,
-  DriftType,
-  MutationOperation,
-} from "../core/types.js";
+import type { FieldDefinition, DriftConfig, DriftType, MutationOperation } from "../core/types.js";
 import { buildQuery } from "../core/query-builder.js";
-import {
-  buildUpdateMutation,
-  buildCreateMutation,
-} from "../core/mutation-builder.js";
+import { buildUpdateMutation, buildCreateMutation } from "../core/mutation-builder.js";
 import { flatten, unflatten } from "../core/flatten.js";
-import {
-  buildRegistryAsync,
-  buildInputRegistry,
-  getEditableFields,
-} from "../core/registry.js";
+import { buildRegistryAsync, buildInputRegistry, getEditableFields } from "../core/registry.js";
 import { discoverMutations } from "../core/introspection.js";
 import { formatValue, inputType, parseInput } from "../core/render.js";
 import { gqlFetch } from "../core/fetch.js";
@@ -133,11 +121,7 @@ export interface UseDriftTypeResult {
     { id: string; values: Record<string, unknown> }
   >;
   /** The underlying TanStack Query create mutation */
-  createMutation: UseMutationResult<
-    unknown,
-    Error,
-    { values: Record<string, unknown> }
-  >;
+  createMutation: UseMutationResult<unknown, Error, { values: Record<string, unknown> }>;
   /** Format a value for display based on field type */
   format: (field: FieldDefinition, value: unknown) => string;
   /** Get the HTML input type for a field */
@@ -185,9 +169,7 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
   const providerConfig = useDriftConfig();
   const config = options.config ?? providerConfig;
   if (!config) {
-    throw new Error(
-      "useDriftType requires `config` or a <DriftProvider> higher in the tree",
-    );
+    throw new Error("useDriftType requires `config` or a <DriftProvider> higher in the tree");
   }
 
   // --- Resolve type name and query name ---
@@ -230,12 +212,9 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
   });
 
   const driftType = staticType ?? introspectionResult.data ?? null;
-  const registry = driftType?.fields ?? [];
-  const editableFields = driftType?.editableFields ?? [];
-  const editableKeySet = useMemo(
-    () => new Set(editableFields.map((f) => f.key)),
-    [editableFields],
-  );
+  const registry = useMemo(() => driftType?.fields ?? [], [driftType]);
+  const editableFields = useMemo(() => driftType?.editableFields ?? [], [driftType]);
+  const editableKeySet = useMemo(() => new Set(editableFields.map((f) => f.key)), [editableFields]);
 
   // --- Field selection ---
   const [selectedKeySet, setSelectedKeySet] = useState<Set<string> | null>(
@@ -253,16 +232,10 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
     [registry, effectiveKeys],
   );
 
-  const sortedKeys = useMemo(() => [...effectiveKeys].sort(), [effectiveKeys]);
-
   const query = useMemo(
     () =>
       selectedFields.length > 0
-        ? buildQuery(
-            queryName,
-            selectedFields,
-            filterType ? { filter: filterType } : undefined,
-          )
+        ? buildQuery(queryName, selectedFields, filterType ? { filter: filterType } : undefined)
         : "",
     [queryName, selectedFields, filterType],
   );
@@ -292,9 +265,7 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
     if (!data) return [];
     const list = data[queryName];
     if (!Array.isArray(list)) return [];
-    return list.map((item: Record<string, unknown>) =>
-      flatten(item, selectedFields),
-    );
+    return list.map((item: Record<string, unknown>) => flatten(item, selectedFields));
   }, [dataResult.data, queryName, selectedFields]);
 
   // --- Validation helper ---
@@ -326,8 +297,7 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
   >({
     mutationFn: async ({ id, values }) => {
       const validated = await validateValues(values, editableFields);
-      const returnFields =
-        selectedFields.length > 0 ? selectedFields : registry;
+      const returnFields = selectedFields.length > 0 ? selectedFields : registry;
       const mutationStr = buildUpdateMutation(typeName, returnFields);
       const input = unflatten(validated, editableFields);
       return gqlFetch(config, mutationStr, { id, input });
@@ -337,16 +307,11 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
     },
   });
 
-  const createMutation = useMutation<
-    unknown,
-    Error,
-    { values: Record<string, unknown> }
-  >({
+  const createMutation = useMutation<unknown, Error, { values: Record<string, unknown> }>({
     mutationFn: async ({ values }) => {
       const inputFields = driftType?.inputFields ?? editableFields;
       const validated = await validateValues(values, inputFields);
-      const returnFields =
-        selectedFields.length > 0 ? selectedFields : registry;
+      const returnFields = selectedFields.length > 0 ? selectedFields : registry;
       const mutationStr = buildCreateMutation(typeName, returnFields);
       const input = unflatten(validated, inputFields);
       return gqlFetch(config, mutationStr, { input });
@@ -380,10 +345,7 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
     [],
   );
 
-  const getInputType = useCallback(
-    (field: FieldDefinition) => inputType(field),
-    [],
-  );
+  const getInputType = useCallback((field: FieldDefinition) => inputType(field), []);
 
   const parse = useCallback(
     (field: FieldDefinition, raw: string | boolean) => parseInput(field, raw),

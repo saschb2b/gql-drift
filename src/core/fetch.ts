@@ -20,17 +20,13 @@ export async function gqlFetch(
   });
 
   if (!res.ok) {
-    throw new Error(
-      `GraphQL request failed: ${res.status} ${res.statusText}`,
-    );
+    throw new Error(`GraphQL request failed: ${res.status} ${res.statusText}`);
   }
 
   const json = await res.json();
 
   if (json.errors?.length) {
-    throw new Error(
-      json.errors.map((e: { message: string }) => e.message).join(", "),
-    );
+    throw new Error(json.errors.map((e: { message: string }) => e.message).join(", "));
   }
 
   return json.data;

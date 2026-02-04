@@ -5,10 +5,7 @@ import {
   capitalize,
   formatLabel,
 } from "../../src/core/registry.js";
-import type {
-  IntrospectionResult,
-  FieldDefinition,
-} from "../../src/core/types.js";
+import type { IntrospectionResult, FieldDefinition } from "../../src/core/types.js";
 
 describe("capitalize", () => {
   it("capitalizes first character", () => {
@@ -114,11 +111,7 @@ describe("buildRegistry", () => {
           type: {
             name: "OrderStatus",
             kind: "ENUM",
-            enumValues: [
-              { name: "PENDING" },
-              { name: "SHIPPED" },
-              { name: "DELIVERED" },
-            ],
+            enumValues: [{ name: "PENDING" }, { name: "SHIPPED" }, { name: "DELIVERED" }],
           },
         },
       ],
@@ -157,9 +150,7 @@ describe("buildRegistry", () => {
   it("respects custom scalar map", () => {
     const introspection: IntrospectionResult = {
       name: "Order",
-      fields: [
-        { name: "customField", type: { name: "BigDecimal", kind: "SCALAR" } },
-      ],
+      fields: [{ name: "customField", type: { name: "BigDecimal", kind: "SCALAR" } }],
     };
 
     const fields = buildRegistry(introspection, {
@@ -176,9 +167,7 @@ describe("buildRegistry", () => {
   it("skips unknown scalar types", () => {
     const introspection: IntrospectionResult = {
       name: "Order",
-      fields: [
-        { name: "unknownField", type: { name: "UnknownType", kind: "SCALAR" } },
-      ],
+      fields: [{ name: "unknownField", type: { name: "UnknownType", kind: "SCALAR" } }],
     };
 
     const fields = buildRegistry(introspection);
