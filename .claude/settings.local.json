@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__acp__Bash",
+      "mcp__acp__Write",
+      "mcp__acp__Edit",
+      "WebFetch(domain:tkdodo.eu)",
+      "WebFetch(domain:heyapi.dev)",
+      "WebFetch(domain:tanstack.com)"
+    ]
+  }
+}
