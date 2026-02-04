@@ -1,5 +1,9 @@
 # gql-drift
 
+[![CI](https://github.com/saschb2b/gql-drift/actions/workflows/ci.yml/badge.svg)](https://github.com/saschb2b/gql-drift/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/gql-drift.svg)](https://www.npmjs.com/package/gql-drift)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **Dynamic GraphQL queries and mutations at runtime.**
 
 When your query shape is determined by user interaction — not by a developer at build time — codegen can't help you. gql-drift can.

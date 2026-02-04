@@ -77,8 +77,16 @@
     "react",
     "zod"
   ],
-  "author": "",
+  "author": "Sascha Behrens (https://github.com/saschb2b)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saschb2b/gql-drift.git"
+  },
+  "bugs": {
+    "url": "https://github.com/saschb2b/gql-drift/issues"
+  },
+  "homepage": "https://github.com/saschb2b/gql-drift#readme",
   "engines": {
     "node": ">=20"
   },
