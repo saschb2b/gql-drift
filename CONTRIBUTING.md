@@ -12,16 +12,16 @@ pnpm install
 
 ## Scripts
 
-| Command | Description |
-|---|---|
-| `pnpm build` | Build with tsup (ESM + CJS) |
-| `pnpm test` | Run all tests |
-| `pnpm test:watch` | Run tests in watch mode |
-| `pnpm typecheck` | TypeScript type checking |
-| `pnpm lint` | ESLint |
-| `pnpm lint:fix` | ESLint with auto-fix |
-| `pnpm format` | Format with Prettier |
-| `pnpm format:check` | Check formatting |
+| Command             | Description                 |
+| ------------------- | --------------------------- |
+| `pnpm build`        | Build with tsup (ESM + CJS) |
+| `pnpm test`         | Run all tests               |
+| `pnpm test:watch`   | Run tests in watch mode     |
+| `pnpm typecheck`    | TypeScript type checking    |
+| `pnpm lint`         | ESLint                      |
+| `pnpm lint:fix`     | ESLint with auto-fix        |
+| `pnpm format`       | Format with Prettier        |
+| `pnpm format:check` | Check formatting            |
 
 ## Before Submitting a PR
 
