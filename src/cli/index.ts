@@ -31,13 +31,14 @@ Commands:
   gql-drift generate [options]    Generate field registries from schema
 
 Generate Options:
-  --endpoint <url>     GraphQL endpoint URL
-  --schema <path>      Path to a local .graphql SDL file (alternative to --endpoint)
-  --types <names>      Comma-separated type names
-  --out <path>         Output directory (default: src/generated)
-  --depth <n>          Max nesting depth (default: 1)
-  --header <value>     HTTP header as "Key: Value" (repeatable)
-  -h, --help           Show this help message
+  --endpoint <url>       GraphQL endpoint URL
+  --schema <path>        Path to a local .graphql SDL file (alternative to --endpoint)
+  --types <names>        Comma-separated type names, or '*' for auto-discovery
+  --exclude <patterns>   Comma-separated patterns to exclude (e.g. '*Connection,*Edge')
+  --out <path>           Output directory (default: src/generated)
+  --depth <n>            Max nesting depth (default: 1)
+  --header <value>       HTTP header as "Key: Value" (repeatable)
+  -h, --help             Show this help message
 
 Config File:
   If a gql-drift.config.json (or .ts/.js) exists, its values are used as defaults.
@@ -48,6 +49,7 @@ Examples:
   gql-drift generate
   gql-drift generate --endpoint http://localhost:4000/graphql --types Order,Customer
   gql-drift generate --schema ./schema.graphql --types Order
+  gql-drift generate --types '*' --exclude '*Connection,*Edge'
 `);
 }
 
@@ -74,11 +76,17 @@ function parseArgs(args: string[]): Partial<DriftCliConfig> & { command?: string
       case "--schema":
         parsed.schema = iter.next().value;
         break;
-      case "--types":
-        parsed.types = iter
+      case "--types": {
+        const typesVal = iter.next().value;
+        const items = typesVal?.split(",").map((s: string) => s.trim());
+        parsed.types = items?.length === 1 && items[0] === "*" ? "*" : items;
+        break;
+      }
+      case "--exclude":
+        parsed.exclude = iter
           .next()
           .value?.split(",")
-          .map((s) => s.trim());
+          .map((s: string) => s.trim());
         break;
       case "--out":
         parsed.out = iter.next().value;
@@ -383,6 +391,82 @@ async function generateFromSchema(
 }
 
 // ---------------------------------------------------------------------------
+// Wildcard type resolution
+// ---------------------------------------------------------------------------
+
+async function resolveWildcardTypes(config: DriftCliConfig): Promise<string[]> {
+  const { filterTypeNames } = await import("./discovery.js");
+
+  if (config.schema) {
+    const { loadSchemaFromFile, discoverTypesFromSchema } = await import("./schema.js");
+    const schema = loadSchemaFromFile(resolve(process.cwd(), config.schema));
+    return filterTypeNames(discoverTypesFromSchema(schema), config.exclude ?? []);
+  }
+
+  const { discoverTypesFromEndpoint } = await import("./discovery.js");
+  const driftConfig: DriftConfig = {
+    endpoint: config.endpoint ?? "",
+    headers: config.headers,
+    maxDepth: config.depth,
+  };
+  const allTypes = await discoverTypesFromEndpoint(driftConfig);
+  return filterTypeNames(allTypes, config.exclude ?? []);
+}
+
+// ---------------------------------------------------------------------------
+// Per-type generation
+// ---------------------------------------------------------------------------
+
+async function generateType(typeName: string, config: DriftCliConfig, outDir: string) {
+  console.log(`${typeName}:`);
+
+  try {
+    let result;
+    if (config.schema) {
+      result = await generateFromSchema(
+        typeName,
+        resolve(process.cwd(), config.schema),
+        config.depth,
+      );
+    } else {
+      const driftConfig: DriftConfig = {
+        endpoint: config.endpoint ?? "",
+        headers: config.headers,
+        maxDepth: config.depth,
+      };
+      result = await generateFromEndpoint(typeName, driftConfig);
+    }
+
+    const { fields, inputFields, editableFields, mutations } = result;
+
+    const mutationInfo = [...mutations.entries()].map(([op, name]) => ({
+      operation: op,
+      mutationName: name,
+      inputTypeName: getInputTypeName(typeName, op),
+    }));
+
+    const output = buildOutputFile(typeName, fields, inputFields, editableFields, mutationInfo);
+
+    const filePath = resolve(outDir, `${typeName.toLowerCase()}.ts`);
+    writeFileSync(filePath, output);
+    console.log(`  ${fields.length} fields -> ${filePath}`);
+
+    if (editableFields.length > 0) {
+      console.log(
+        `  ${editableFields.length} editable: ${editableFields.map((f) => f.key).join(", ")}`,
+      );
+    }
+
+    if (mutations.size > 0) {
+      console.log(`  mutations: ${[...mutations.values()].join(", ")}`);
+    }
+  } catch (err) {
+    console.error(`  Error: ${(err as Error).message}`);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Main generate command
 // ---------------------------------------------------------------------------
 
@@ -393,8 +477,22 @@ async function runGenerate(config: DriftCliConfig) {
     process.exit(1);
   }
 
-  if (!config.types.length) {
-    console.error("Error: --types is required (or set in config file)");
+  // Resolve wildcard types
+  let resolvedTypes: string[];
+
+  if (config.types === "*") {
+    resolvedTypes = await resolveWildcardTypes(config);
+    console.log(`Discovered ${String(resolvedTypes.length)} types`);
+    if (resolvedTypes.length > 0) {
+      console.log(`Types: ${resolvedTypes.join(", ")}`);
+    }
+    console.log("");
+  } else {
+    resolvedTypes = config.types;
+  }
+
+  if (resolvedTypes.length === 0) {
+    console.error("Error: no types to generate. Use --types or set types in config file.");
     printUsage();
     process.exit(1);
   }
@@ -406,53 +504,8 @@ async function runGenerate(config: DriftCliConfig) {
   console.log(`Source: ${mode === "schema" ? config.schema : config.endpoint}`);
   console.log("");
 
-  for (const typeName of config.types) {
-    console.log(`${typeName}:`);
-
-    try {
-      let result;
-      if (config.schema) {
-        result = await generateFromSchema(
-          typeName,
-          resolve(process.cwd(), config.schema),
-          config.depth,
-        );
-      } else {
-        const driftConfig: DriftConfig = {
-          endpoint: config.endpoint ?? "",
-          headers: config.headers,
-          maxDepth: config.depth,
-        };
-        result = await generateFromEndpoint(typeName, driftConfig);
-      }
-
-      const { fields, inputFields, editableFields, mutations } = result;
-
-      const mutationInfo = [...mutations.entries()].map(([op, name]) => ({
-        operation: op,
-        mutationName: name,
-        inputTypeName: getInputTypeName(typeName, op),
-      }));
-
-      const output = buildOutputFile(typeName, fields, inputFields, editableFields, mutationInfo);
-
-      const filePath = resolve(outDir, `${typeName.toLowerCase()}.ts`);
-      writeFileSync(filePath, output);
-      console.log(`  ${fields.length} fields -> ${filePath}`);
-
-      if (editableFields.length > 0) {
-        console.log(
-          `  ${editableFields.length} editable: ${editableFields.map((f) => f.key).join(", ")}`,
-        );
-      }
-
-      if (mutations.size > 0) {
-        console.log(`  mutations: ${[...mutations.values()].join(", ")}`);
-      }
-    } catch (err) {
-      console.error(`  Error: ${(err as Error).message}`);
-      process.exit(1);
-    }
+  for (const typeName of resolvedTypes) {
+    await generateType(typeName, config, outDir);
   }
 
   console.log("");

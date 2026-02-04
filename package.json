@@ -79,6 +79,9 @@
   ],
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "peerDependencies": {
     "@tanstack/react-query": ">=5.0.0",
     "graphql": ">=16.0.0",

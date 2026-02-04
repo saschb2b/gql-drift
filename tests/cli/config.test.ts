@@ -94,4 +94,47 @@ describe("mergeConfig", () => {
     const result = mergeConfig(fileConfig, cliArgs);
     expect(result.schema).toBe("./schema-cli.graphql");
   });
+
+  it("supports types as wildcard string '*'", () => {
+    const fileConfig: Partial<DriftCliConfig> = {
+      types: "*",
+    };
+    const result = mergeConfig(fileConfig, {});
+    expect(result.types).toBe("*");
+  });
+
+  it("cli types '*' overrides file config array", () => {
+    const fileConfig: Partial<DriftCliConfig> = {
+      types: ["Order", "Customer"],
+    };
+    const cliArgs: Partial<DriftCliConfig> = {
+      types: "*",
+    };
+    const result = mergeConfig(fileConfig, cliArgs);
+    expect(result.types).toBe("*");
+  });
+
+  it("merges exclude from file config", () => {
+    const fileConfig: Partial<DriftCliConfig> = {
+      exclude: ["__*", "*Connection"],
+    };
+    const result = mergeConfig(fileConfig, {});
+    expect(result.exclude).toEqual(["__*", "*Connection"]);
+  });
+
+  it("cli exclude overrides file config exclude", () => {
+    const fileConfig: Partial<DriftCliConfig> = {
+      exclude: ["__*"],
+    };
+    const cliArgs: Partial<DriftCliConfig> = {
+      exclude: ["*Connection", "*Edge"],
+    };
+    const result = mergeConfig(fileConfig, cliArgs);
+    expect(result.exclude).toEqual(["*Connection", "*Edge"]);
+  });
+
+  it("exclude is undefined when not set", () => {
+    const result = mergeConfig(null, {});
+    expect(result.exclude).toBeUndefined();
+  });
 });

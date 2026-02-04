@@ -6,8 +6,10 @@ export interface DriftCliConfig {
   endpoint?: string;
   /** Path to a local .graphql schema file (alternative to endpoint) */
   schema?: string;
-  /** Type names to generate */
-  types: string[];
+  /** Type names to generate, or "*" for auto-discovery */
+  types: string[] | "*";
+  /** Glob patterns for types to exclude when using wildcard discovery */
+  exclude?: string[];
   /** Output directory (default: src/generated) */
   out: string;
   /** Max nesting depth (default: 1) */
@@ -61,6 +63,7 @@ export function mergeConfig(
     endpoint: cliArgs.endpoint ?? fileConfig?.endpoint,
     schema: cliArgs.schema ?? fileConfig?.schema,
     types: cliArgs.types ?? fileConfig?.types ?? [],
+    exclude: cliArgs.exclude ?? fileConfig?.exclude,
     out: cliArgs.out ?? fileConfig?.out ?? "src/generated",
     depth: cliArgs.depth ?? fileConfig?.depth ?? 1,
     headers: { ...fileConfig?.headers, ...cliArgs.headers },

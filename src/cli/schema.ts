@@ -100,3 +100,61 @@ export function discoverMutationsFromSchema(
 
   return available;
 }
+
+// ---------------------------------------------------------------------------
+// Type discovery
+// ---------------------------------------------------------------------------
+
+const SCHEMA_TYPES_QUERY = `
+  query {
+    __schema {
+      types {
+        name
+        kind
+      }
+      queryType { name }
+      mutationType { name }
+      subscriptionType { name }
+    }
+  }
+`;
+
+interface SchemaTypesResult {
+  __schema: {
+    types: { name: string; kind: string }[];
+    queryType: { name: string } | null;
+    mutationType: { name: string } | null;
+    subscriptionType: { name: string } | null;
+  };
+}
+
+/**
+ * Discover all OBJECT type names from a local GraphQL schema,
+ * excluding built-in types, root operation types, and non-OBJECT types.
+ */
+export function discoverTypesFromSchema(schema: GraphQLSchema): string[] {
+  const result = graphqlSync({ schema, source: SCHEMA_TYPES_QUERY });
+
+  if (result.errors?.length) {
+    throw new Error(
+      `Schema type discovery failed: ${result.errors.map((e) => e.message).join(", ")}`,
+    );
+  }
+
+  const schemaInfo = (result.data as unknown as SchemaTypesResult).__schema;
+
+  const rootTypeNames = new Set<string>();
+  if (schemaInfo.queryType?.name) rootTypeNames.add(schemaInfo.queryType.name);
+  if (schemaInfo.mutationType?.name) rootTypeNames.add(schemaInfo.mutationType.name);
+  if (schemaInfo.subscriptionType?.name) rootTypeNames.add(schemaInfo.subscriptionType.name);
+
+  return schemaInfo.types
+    .filter((t) => {
+      if (t.kind !== "OBJECT") return false;
+      if (t.name.startsWith("__")) return false;
+      if (rootTypeNames.has(t.name)) return false;
+      return true;
+    })
+    .map((t) => t.name)
+    .sort((a, b) => a.localeCompare(b));
+}
