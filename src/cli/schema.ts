@@ -64,7 +64,7 @@ export function introspectTypeFromSchema(
     );
   }
 
-  const type = (result.data as Record<string, unknown>)?.__type;
+  const type = (result.data as Record<string, unknown> | undefined)?.__type;
   if (!type) {
     throw new Error(
       `Type "${typeName}" not found in schema. Available types can be viewed with a schema explorer.`,

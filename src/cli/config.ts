@@ -39,7 +39,7 @@ export async function loadConfigFile(cwd: string): Promise<Partial<DriftCliConfi
       try {
         // Use file:// URL for cross-platform compatibility
         const fileUrl = `file://${filePath.replace(/\\/g, "/")}`;
-        const mod = await import(fileUrl);
+        const mod = (await import(fileUrl)) as { default?: Partial<DriftCliConfig> };
         return (mod.default ?? mod) as Partial<DriftCliConfig>;
       } catch (err) {
         throw new Error(`Failed to load ${filePath}: ${(err as Error).message}`);

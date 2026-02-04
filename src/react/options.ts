@@ -22,7 +22,7 @@ async function runValidation(
   if (validate) {
     const { buildInputSchema } = await import("../zod/index.js");
     const schema = buildInputSchema(fields);
-    return schema.parse(values) as Record<string, unknown>;
+    return schema.parse(values);
   }
   return values;
 }
@@ -52,7 +52,7 @@ export interface DriftQueryKeyParams {
 export function driftQueryKey(params: DriftQueryKeyParams): unknown[] {
   const qName = params.queryName ?? defaultQueryName(params.type.typeName);
   const fields = params.fields ?? params.type.fields;
-  const sortedKeys = fields.map((f) => f.key).sort();
+  const sortedKeys = fields.map((f) => f.key).sort((a, b) => a.localeCompare(b));
   return [qName, sortedKeys, params.filter];
 }
 

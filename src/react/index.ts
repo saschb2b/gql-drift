@@ -232,12 +232,13 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
     [registry, effectiveKeys],
   );
 
+  const queryOptions = useMemo(
+    () => (filterType ? { filter: filterType } : undefined),
+    [filterType],
+  );
   const query = useMemo(
-    () =>
-      selectedFields.length > 0
-        ? buildQuery(queryName, selectedFields, filterType ? { filter: filterType } : undefined)
-        : "",
-    [queryName, selectedFields, filterType],
+    () => (selectedFields.length > 0 ? buildQuery(queryName, selectedFields, queryOptions) : ""),
+    [queryName, selectedFields, queryOptions],
   );
 
   // --- Data fetching ---
@@ -280,7 +281,7 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
       if (shouldValidate) {
         const { buildInputSchema } = await import("../zod/index.js");
         const schema = buildInputSchema(fields);
-        return schema.parse(values) as Record<string, unknown>;
+        return schema.parse(values);
       }
       return values;
     },
@@ -302,8 +303,8 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
       const input = unflatten(validated, editableFields);
       return gqlFetch(config, mutationStr, { id, input });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryName] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [queryName] });
     },
   });
 
@@ -316,8 +317,8 @@ export function useDriftType(options: UseDriftTypeOptions): UseDriftTypeResult {
       const input = unflatten(validated, inputFields);
       return gqlFetch(config, mutationStr, { input });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryName] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: [queryName] });
     },
   });
 

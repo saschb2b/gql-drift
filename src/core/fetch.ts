@@ -23,10 +23,13 @@ export async function gqlFetch(
     throw new Error(`GraphQL request failed: ${res.status} ${res.statusText}`);
   }
 
-  const json = await res.json();
+  const json = (await res.json()) as {
+    data?: unknown;
+    errors?: { message: string }[];
+  };
 
-  if (json.errors?.length) {
-    throw new Error(json.errors.map((e: { message: string }) => e.message).join(", "));
+  if (json.errors && json.errors.length > 0) {
+    throw new Error(json.errors.map((e) => e.message).join(", "));
   }
 
   return json.data;

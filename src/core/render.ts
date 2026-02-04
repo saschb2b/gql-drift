@@ -50,25 +50,26 @@ export function formatValue(
   switch (field.type) {
     case "string":
     case "enum":
-      return String(value);
+      return value as string;
 
     case "number": {
       const num = typeof value === "number" ? value : Number(value);
-      if (Number.isNaN(num)) return String(value);
+      if (Number.isNaN(num)) return value as string;
       return num.toLocaleString(options?.locale);
     }
 
     case "date": {
       const date = value instanceof Date ? value : new Date(value as string | number);
-      if (Number.isNaN(date.getTime())) return String(value);
+      if (Number.isNaN(date.getTime())) return value as string;
       return date.toLocaleDateString(options?.locale, options?.dateOptions);
     }
 
     case "boolean":
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- value can be false
       return value ? "Yes" : "No";
 
     default:
-      return String(value);
+      return value as string;
   }
 }
 

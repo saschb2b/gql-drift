@@ -16,8 +16,12 @@ export function buildSelectionSet(paths: string[]): string[] {
     } else {
       const parent = path.slice(0, dot);
       const child = path.slice(dot + 1);
-      if (!nested.has(parent)) nested.set(parent, []);
-      nested.get(parent)!.push(child);
+      const existing = nested.get(parent);
+      if (existing) {
+        existing.push(child);
+      } else {
+        nested.set(parent, [child]);
+      }
     }
   }
 

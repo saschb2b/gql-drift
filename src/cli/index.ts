@@ -57,9 +57,8 @@ function parseArgs(args: string[]): Partial<DriftCliConfig> & { command?: string
     headers: {},
   };
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-
+  const iter = args[Symbol.iterator]();
+  for (const arg of iter) {
     if (arg === "init" || arg === "generate") {
       parsed.command = arg;
       continue;
@@ -67,25 +66,29 @@ function parseArgs(args: string[]): Partial<DriftCliConfig> & { command?: string
 
     switch (arg) {
       case "--endpoint":
-        parsed.endpoint = args[++i];
+        parsed.endpoint = iter.next().value;
         break;
       case "--schema":
-        parsed.schema = args[++i];
+        parsed.schema = iter.next().value;
         break;
       case "--types":
-        parsed.types = args[++i]?.split(",").map((s) => s.trim());
+        parsed.types = iter
+          .next()
+          .value?.split(",")
+          .map((s) => s.trim());
         break;
       case "--out":
-        parsed.out = args[++i];
+        parsed.out = iter.next().value;
         break;
       case "--depth":
-        parsed.depth = parseInt(args[++i], 10);
+        parsed.depth = parseInt(String(iter.next().value), 10);
         break;
       case "--header": {
-        const val = args[++i];
+        const val = iter.next().value;
         const colon = val?.indexOf(":");
-        if (colon && colon > 0) {
-          parsed.headers![val.slice(0, colon).trim()] = val.slice(colon + 1).trim();
+        if (colon != null && colon > 0 && val) {
+          parsed.headers ??= {};
+          parsed.headers[val.slice(0, colon).trim()] = val.slice(colon + 1).trim();
         }
         break;
       }
@@ -413,7 +416,7 @@ async function runGenerate(config: DriftCliConfig) {
         );
       } else {
         const driftConfig: DriftConfig = {
-          endpoint: config.endpoint!,
+          endpoint: config.endpoint ?? "",
           headers: config.headers,
           maxDepth: config.depth,
         };
@@ -496,7 +499,7 @@ async function main() {
   process.exit(1);
 }
 
-main().catch((err) => {
-  console.error("Fatal error:", err.message);
+main().catch((err: unknown) => {
+  console.error("Fatal error:", err instanceof Error ? err.message : String(err));
   process.exit(1);
 });

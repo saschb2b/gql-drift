@@ -91,43 +91,47 @@ function buildRegistrySync(
     const graphqlPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name;
     const key = prefix ? `${prefix}${capitalize(field.name)}` : field.name;
 
-    if (unwrapped.kind === "ENUM") {
-      const enumValues = unwrapped.enumValues?.map((v) => v.name) ?? [];
-      fields.push({
+    const resolved = resolveField(unwrapped, key, field.name, graphqlPath, scalarMap);
+    if (resolved !== null) {
+      fields.push(resolved);
+    } else if (
+      unwrapped.kind === "OBJECT" &&
+      depth < maxDepth &&
+      unwrapped.name &&
+      unwrapped.name in nestedTypes
+    ) {
+      const nestedFields = buildRegistrySync(
+        nestedTypes[unwrapped.name],
+        scalarMap,
+        nestedTypes,
+        maxDepth,
+        depth + 1,
         key,
-        label: formatLabel(field.name),
         graphqlPath,
-        type: "enum",
-        enumValues,
-      });
-    } else if (unwrapped.kind === "SCALAR") {
-      const mappedType = scalarMap[unwrapped.name!];
-      if (mappedType) {
-        fields.push({
-          key,
-          label: formatLabel(field.name),
-          graphqlPath,
-          type: mappedType,
-        });
-      }
-    } else if (unwrapped.kind === "OBJECT" && depth < maxDepth && unwrapped.name) {
-      const nestedType = nestedTypes[unwrapped.name];
-      if (nestedType) {
-        const nestedFields = buildRegistrySync(
-          nestedType,
-          scalarMap,
-          nestedTypes,
-          maxDepth,
-          depth + 1,
-          key,
-          graphqlPath,
-        );
-        fields.push(...nestedFields);
-      }
+      );
+      fields.push(...nestedFields);
     }
   }
 
   return fields;
+}
+
+/** Resolve a single field from its unwrapped type info. Returns null for unresolvable types. */
+function resolveField(
+  unwrapped: ReturnType<typeof unwrapType>,
+  key: string,
+  name: string,
+  graphqlPath: string,
+  scalarMap: Record<string, FieldType>,
+): FieldDefinition | null {
+  if (unwrapped.kind === "ENUM") {
+    const enumValues = unwrapped.enumValues?.map((v) => v.name) ?? [];
+    return { key, label: formatLabel(name), graphqlPath, type: "enum", enumValues };
+  }
+  if (unwrapped.kind === "SCALAR" && unwrapped.name && unwrapped.name in scalarMap) {
+    return { key, label: formatLabel(name), graphqlPath, type: scalarMap[unwrapped.name] };
+  }
+  return null;
 }
 
 /**
@@ -183,25 +187,9 @@ async function buildRegistryRecursive(
     const graphqlPath = pathPrefix ? `${pathPrefix}.${field.name}` : field.name;
     const key = prefix ? `${prefix}${capitalize(field.name)}` : field.name;
 
-    if (unwrapped.kind === "ENUM") {
-      const enumValues = unwrapped.enumValues?.map((v) => v.name) ?? [];
-      fields.push({
-        key,
-        label: formatLabel(field.name),
-        graphqlPath,
-        type: "enum",
-        enumValues,
-      });
-    } else if (unwrapped.kind === "SCALAR") {
-      const mappedType = scalarMap[unwrapped.name!];
-      if (mappedType) {
-        fields.push({
-          key,
-          label: formatLabel(field.name),
-          graphqlPath,
-          type: mappedType,
-        });
-      }
+    const resolved = resolveField(unwrapped, key, field.name, graphqlPath, scalarMap);
+    if (resolved !== null) {
+      fields.push(resolved);
     } else if (unwrapped.kind === "OBJECT" && depth < maxDepth && unwrapped.name) {
       const nestedType = await introspectType(unwrapped.name, config);
       const nestedFields = await buildRegistryRecursive(

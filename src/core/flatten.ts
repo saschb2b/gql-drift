@@ -21,12 +21,12 @@ export function flatten(
   for (const field of fields) {
     const parts = field.graphqlPath.split(".");
     let value: unknown = data;
-    for (let i = 0; i < parts.length; i++) {
+    for (const part of parts) {
       if (value == null) {
         value = undefined;
         break;
       }
-      value = (value as Record<string, unknown>)[parts[i]];
+      value = (value as Record<string, unknown>)[part];
     }
     row[field.key] = value;
   }
@@ -59,7 +59,7 @@ export function unflatten(
       // Nested field: reconstruct the object
       const parent = field.graphqlPath.slice(0, dot);
       const child = field.graphqlPath.slice(dot + 1);
-      if (!result[parent]) result[parent] = {};
+      result[parent] ??= {};
       (result[parent] as Record<string, unknown>)[child] = flatData[field.key];
     }
   }

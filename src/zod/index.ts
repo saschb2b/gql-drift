@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { FieldDefinition } from "../core/types.js";
 
-function zodTypeForField(field: FieldDefinition): z.ZodTypeAny {
+function zodTypeForField(field: FieldDefinition): z.ZodType {
   switch (field.type) {
     case "string":
       return z.string();
@@ -30,8 +30,8 @@ function zodTypeForField(field: FieldDefinition): z.ZodTypeAny {
  */
 export function buildResultSchema(
   fields: FieldDefinition[],
-): z.ZodObject<Record<string, z.ZodTypeAny>> {
-  const shape: Record<string, z.ZodTypeAny> = { id: z.string() };
+): z.ZodObject<Record<string, z.ZodType>> {
+  const shape: Record<string, z.ZodType> = { id: z.string() };
   for (const field of fields) {
     shape[field.key] = zodTypeForField(field);
   }
@@ -47,8 +47,8 @@ export function buildResultSchema(
  */
 export function buildInputSchema(
   fields: FieldDefinition[],
-): z.ZodObject<Record<string, z.ZodTypeAny>> {
-  const shape: Record<string, z.ZodTypeAny> = {};
+): z.ZodObject<Record<string, z.ZodType>> {
+  const shape: Record<string, z.ZodType> = {};
   for (const field of fields) {
     shape[field.key] = zodTypeForField(field);
   }
