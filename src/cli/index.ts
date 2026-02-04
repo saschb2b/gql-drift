@@ -182,20 +182,20 @@ function buildOutputFile(
 // Source type: ${typeName}
 // Regenerate: gql-drift generate
 
-import type { FieldDefinition, MutationOperation, DriftConfig } from "gql-drift";
-import { defineDriftType } from "gql-drift";
+import type { FieldDefinition, MutationOperation, DriftConfig } from "@saschb2b/gql-drift";
+import { defineDriftType } from "@saschb2b/gql-drift";
 import {
   driftQueryOptions,
   driftUpdateMutation,
   driftCreateMutation,
   driftQueryKey,
-} from "gql-drift/react";
+} from "@saschb2b/gql-drift/react";
 import type {
   DriftQueryOptionsParams,
   DriftUpdateMutationParams,
   DriftCreateMutationParams,
   DriftQueryKeyParams,
-} from "gql-drift/react";
+} from "@saschb2b/gql-drift/react";
 
 export const ${constName}_FIELDS: FieldDefinition[] = ${serializeFields(fields, 0)};
 `;

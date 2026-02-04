@@ -1,7 +1,7 @@
 # gql-drift
 
 [![CI](https://github.com/saschb2b/gql-drift/actions/workflows/ci.yml/badge.svg)](https://github.com/saschb2b/gql-drift/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/gql-drift.svg)](https://www.npmjs.com/package/gql-drift)
+[![npm version](https://img.shields.io/npm/v/@saschb2b/gql-drift.svg)](https://www.npmjs.com/package/@saschb2b/gql-drift)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **Dynamic GraphQL queries and mutations at runtime.**
@@ -31,7 +31,7 @@ Schema → Introspection → Field Registry → Query Builder → Flatten → UI
 ## Install
 
 ```bash
-pnpm add gql-drift
+pnpm add @saschb2b/gql-drift
 ```
 
 Optional peer dependencies — install only what you use:
@@ -90,7 +90,7 @@ gql-drift follows the [TanStack Query v5 `queryOptions` pattern](https://tkdodo.
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { DriftProvider } from "gql-drift/react";
+import { DriftProvider } from "@saschb2b/gql-drift/react";
 
 const queryClient = new QueryClient();
 
@@ -111,7 +111,7 @@ Spread generated options into `useQuery` / `useMutation`:
 
 ```tsx
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useDriftConfig } from "gql-drift/react";
+import { useDriftConfig } from "@saschb2b/gql-drift/react";
 import { orderQueryOptions, updateOrderMutation, orderQueryKey } from "./generated/order";
 
 function OrderTable() {
@@ -138,7 +138,7 @@ This works with `useQuery`, `useSuspenseQuery`, `queryClient.prefetchQuery`, and
 For the full experience — field checkboxes, toggle on/off, auto-rebuilding queries — use `useDriftType`:
 
 ```tsx
-import { useDriftType } from "gql-drift/react";
+import { useDriftType } from "@saschb2b/gql-drift/react";
 import { orderType } from "./generated/order";
 
 function OrderTable() {
@@ -250,7 +250,7 @@ fetcher: async ({ query, variables }) => {
 No React required. Use the core directly:
 
 ```ts
-import { createDrift } from "gql-drift";
+import { createDrift } from "@saschb2b/gql-drift";
 
 const drift = createDrift({ endpoint: "/graphql" });
 
@@ -264,7 +264,7 @@ await drift.update(order, { id: "1", values: { status: "SHIPPED" } });
 With static generation (no network introspection):
 
 ```ts
-import { createDriftFromRegistry } from "gql-drift";
+import { createDriftFromRegistry } from "@saschb2b/gql-drift";
 import { orderType } from "./generated/order";
 
 const drift = createDriftFromRegistry({ endpoint: "/graphql" }, orderType);
@@ -278,7 +278,7 @@ const { rows } = await drift.fetch("orders", await drift.type("Order"));
 Auto-generate Zod schemas from your field definitions:
 
 ```ts
-import { buildResultSchema, buildInputSchema } from "gql-drift/zod";
+import { buildResultSchema, buildInputSchema } from "@saschb2b/gql-drift/zod";
 import { orderType } from "./generated/order";
 
 const resultSchema = buildResultSchema(orderType.fields);
@@ -325,7 +325,7 @@ Registry: { key: "shippingAddressCity", graphqlPath: "shippingAddress.city" }
 ### Rendering Helpers
 
 ```ts
-import { formatValue, inputType, parseInput } from "gql-drift";
+import { formatValue, inputType, parseInput } from "@saschb2b/gql-drift";
 
 formatValue(field, value); // "99.99" | "true" | "Jan 1, 2024"
 inputType(field); // "text" | "number" | "date" | "checkbox" | "select"
@@ -355,23 +355,23 @@ Config file values are defaults. CLI flags override them.
 
 ## Entry Points
 
-| Import            | Contents                                                                                  |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| `gql-drift`       | Core: types, introspection, registry, query/mutation builders, flatten, rendering helpers |
-| `gql-drift/react` | `DriftProvider`, `useDriftType`, options factories                                        |
-| `gql-drift/zod`   | `buildResultSchema`, `buildInputSchema`                                                   |
-| `gql-drift/cli`   | CLI entry point (`npx gql-drift`)                                                         |
+| Import                      | Contents                                                                                  |
+| --------------------------- | ----------------------------------------------------------------------------------------- |
+| `@saschb2b/gql-drift`       | Core: types, introspection, registry, query/mutation builders, flatten, rendering helpers |
+| `@saschb2b/gql-drift/react` | `DriftProvider`, `useDriftType`, options factories                                        |
+| `@saschb2b/gql-drift/zod`   | `buildResultSchema`, `buildInputSchema`                                                   |
+| `@saschb2b/gql-drift/cli`   | CLI entry point (`npx gql-drift`)                                                         |
 
 All entry points are tree-shakeable. ESM and CJS.
 
 ## Peer Dependencies
 
-| Package                 | Used by           | Required |
-| ----------------------- | ----------------- | -------- |
-| `react`                 | `gql-drift/react` | No       |
-| `@tanstack/react-query` | `gql-drift/react` | No       |
-| `zod`                   | `gql-drift/zod`   | No       |
-| `graphql`               | `--schema` flag   | No       |
+| Package                 | Used by                     | Required |
+| ----------------------- | --------------------------- | -------- |
+| `react`                 | `@saschb2b/gql-drift/react` | No       |
+| `@tanstack/react-query` | `@saschb2b/gql-drift/react` | No       |
+| `zod`                   | `@saschb2b/gql-drift/zod`   | No       |
+| `graphql`               | `--schema` flag             | No       |
 
 The core package has zero dependencies.
 

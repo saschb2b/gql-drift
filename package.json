@@ -1,5 +1,5 @@
 {
-  "name": "gql-drift",
+  "name": "@saschb2b/gql-drift",
   "version": "0.1.0",
   "description": "Dynamic GraphQL queries and mutations at runtime - from schema introspection to typed field registries, query/mutation builders, and React integration",
   "type": "module",
@@ -87,6 +87,9 @@
     "url": "https://github.com/saschb2b/gql-drift/issues"
   },
   "homepage": "https://github.com/saschb2b/gql-drift#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20"
   },
