@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { buildRegistry } from "../../src/core/registry.js";
-import { buildQuery } from "../../src/core/query-builder.js";
-import { buildUpdateMutation, buildCreateMutation } from "../../src/core/mutation-builder.js";
 import { flatten, unflatten } from "../../src/core/flatten.js";
+import { buildUpdateMutation, buildCreateMutation } from "../../src/core/mutation-builder.js";
+import { buildQuery } from "../../src/core/query-builder.js";
+import { buildRegistry } from "../../src/core/registry.js";
 import type { IntrospectionResult, FieldDefinition } from "../../src/core/types.js";
 
 /**

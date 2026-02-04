@@ -1,10 +1,10 @@
-import type { DriftConfig, DriftType, FieldDefinition, MutationOperation } from "./types.js";
-import { discoverMutations } from "./introspection.js";
-import { buildRegistryAsync, buildInputRegistry, getEditableFields } from "./registry.js";
-import { buildQuery, type BuildQueryOptions } from "./query-builder.js";
-import { buildUpdateMutation, buildCreateMutation } from "./mutation-builder.js";
-import { flatten, unflatten } from "./flatten.js";
 import { gqlFetch } from "./fetch.js";
+import { flatten, unflatten } from "./flatten.js";
+import { discoverMutations } from "./introspection.js";
+import { buildUpdateMutation, buildCreateMutation } from "./mutation-builder.js";
+import { buildQuery, type BuildQueryOptions } from "./query-builder.js";
+import { buildRegistryAsync, buildInputRegistry, getEditableFields } from "./registry.js";
+import type { DriftConfig, DriftType, FieldDefinition, MutationOperation } from "./types.js";
 
 /** Options for fetching data via the drift client */
 export interface DriftFetchOptions {

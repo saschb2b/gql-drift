@@ -1,3 +1,4 @@
+import { gqlFetch } from "./fetch.js";
 import type {
   DriftConfig,
   IntrospectionField,
@@ -5,7 +6,6 @@ import type {
   IntrospectionType,
   MutationOperation,
 } from "./types.js";
-import { gqlFetch } from "./fetch.js";
 
 const INTROSPECTION_QUERY = `
   query IntrospectType($typeName: String!) {

@@ -1,11 +1,11 @@
+import { writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, it, expect } from "vitest";
 import {
   loadSchemaFromFile,
   introspectTypeFromSchema,
   discoverMutationsFromSchema,
 } from "../../src/cli/schema.js";
-import { writeFileSync, mkdirSync, rmSync } from "node:fs";
-import { resolve } from "node:path";
 
 const TMP_DIR = resolve(__dirname, "__tmp_schema_test__");
 const SCHEMA_PATH = resolve(TMP_DIR, "test.graphql");

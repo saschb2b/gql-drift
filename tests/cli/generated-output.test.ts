@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
 import { writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
+import { describe, it, expect } from "vitest";
 import {
   loadSchemaFromFile,
   introspectTypeFromSchema,
   discoverMutationsFromSchema,
 } from "../../src/cli/schema.js";
-import { buildRegistry, getEditableFields } from "../../src/core/registry.js";
 import { getInputTypeName } from "../../src/core/mutation-builder.js";
+import { buildRegistry, getEditableFields } from "../../src/core/registry.js";
 
 /**
  * We can't import buildOutputFile directly (it's not exported),

@@ -1,16 +1,16 @@
-import { useState, useMemo, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useMemo, useCallback, useRef } from "react";
+import { gqlFetch } from "../core/fetch.js";
+import { flatten, unflatten } from "../core/flatten.js";
+import { discoverMutations } from "../core/introspection.js";
+import { buildUpdateMutation, buildCreateMutation } from "../core/mutation-builder.js";
+import { buildQuery } from "../core/query-builder.js";
+import { buildRegistryAsync, buildInputRegistry, getEditableFields } from "../core/registry.js";
+import { formatValue, inputType, parseInput } from "../core/render.js";
+import { driftQueryKey } from "./options.js";
+import { useDriftConfig } from "./provider.js";
 import type { UseMutationResult } from "@tanstack/react-query";
 import type { FieldDefinition, DriftConfig, DriftType, MutationOperation } from "../core/types.js";
-import { buildQuery } from "../core/query-builder.js";
-import { buildUpdateMutation, buildCreateMutation } from "../core/mutation-builder.js";
-import { flatten, unflatten } from "../core/flatten.js";
-import { buildRegistryAsync, buildInputRegistry, getEditableFields } from "../core/registry.js";
-import { discoverMutations } from "../core/introspection.js";
-import { formatValue, inputType, parseInput } from "../core/render.js";
-import { gqlFetch } from "../core/fetch.js";
-import { useDriftConfig } from "./provider.js";
-import { driftQueryKey } from "./options.js";
 
 // Re-export rendering helpers
 export { formatValue, inputType, parseInput } from "../core/render.js";

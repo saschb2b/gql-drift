@@ -1,5 +1,5 @@
-import type { FieldDefinition, MutationOperation } from "./types.js";
 import { buildSelectionSet } from "./query-builder.js";
+import type { FieldDefinition, MutationOperation } from "./types.js";
 
 /**
  * Get the mutation name for a type and operation by convention.

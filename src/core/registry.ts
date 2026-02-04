@@ -1,5 +1,5 @@
-import type { DriftConfig, FieldDefinition, FieldType, IntrospectionResult } from "./types.js";
 import { introspectType, unwrapType } from "./introspection.js";
+import type { DriftConfig, FieldDefinition, FieldType, IntrospectionResult } from "./types.js";
 
 /** Default mapping from GraphQL scalar names to simplified types */
 export const DEFAULT_SCALAR_MAP: Record<string, FieldType> = {

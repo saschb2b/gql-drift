@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { createElement } from "react";
+import { describe, it, expect } from "vitest";
 import { DriftProvider, useDriftConfig } from "../../src/react/provider.js";
 import type { DriftConfig } from "../../src/core/types.js";
 

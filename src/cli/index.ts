@@ -2,18 +2,21 @@
 
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { discoverMutations } from "../core/introspection.js";
-import { buildRegistryAsync, buildInputRegistry, getEditableFields } from "../core/registry.js";
-import { buildRegistry } from "../core/registry.js";
+import { discoverMutations, unwrapType } from "../core/introspection.js";
 import { getInputTypeName } from "../core/mutation-builder.js";
-import { unwrapType } from "../core/introspection.js";
+import {
+  buildRegistryAsync,
+  buildInputRegistry,
+  getEditableFields,
+  buildRegistry,
+} from "../core/registry.js";
+import { loadConfigFile, mergeConfig, type DriftCliConfig } from "./config.js";
 import type {
   DriftConfig,
   MutationOperation,
   FieldDefinition,
   IntrospectionResult,
 } from "../core/types.js";
-import { loadConfigFile, mergeConfig, type DriftCliConfig } from "./config.js";
 
 // ---------------------------------------------------------------------------
 // Usage
@@ -81,7 +84,7 @@ function parseArgs(args: string[]): Partial<DriftCliConfig> & { command?: string
         parsed.out = iter.next().value;
         break;
       case "--depth":
-        parsed.depth = parseInt(String(iter.next().value), 10);
+        parsed.depth = Number.parseInt(String(iter.next().value), 10);
         break;
       case "--header": {
         const val = iter.next().value;

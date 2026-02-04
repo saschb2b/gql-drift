@@ -1,8 +1,8 @@
-import type { DriftConfig, DriftType, FieldDefinition } from "../core/types.js";
-import { buildQuery } from "../core/query-builder.js";
-import { buildUpdateMutation, buildCreateMutation } from "../core/mutation-builder.js";
-import { flatten, unflatten } from "../core/flatten.js";
 import { gqlFetch } from "../core/fetch.js";
+import { flatten, unflatten } from "../core/flatten.js";
+import { buildUpdateMutation, buildCreateMutation } from "../core/mutation-builder.js";
+import { buildQuery } from "../core/query-builder.js";
+import type { DriftConfig, DriftType, FieldDefinition } from "../core/types.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
