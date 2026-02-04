@@ -193,6 +193,20 @@ describe("discoverMutations", () => {
     expect(result.has("create")).toBe(false);
   });
 
+  it("throws when Mutation type cannot be introspected", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({ data: { __type: null } }),
+      }),
+    );
+
+    await expect(discoverMutations("Order", config)).rejects.toThrow(
+      /Could not introspect Mutation type/,
+    );
+  });
+
   it("returns empty map when no mutations match", async () => {
     vi.stubGlobal(
       "fetch",

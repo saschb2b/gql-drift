@@ -1,11 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   buildRegistry,
+  buildRegistryAsync,
+  buildInputRegistry,
   getEditableFields,
   capitalize,
   formatLabel,
+  withLabels,
 } from "../../src/core/registry.js";
-import type { IntrospectionResult, FieldDefinition } from "../../src/core/types.js";
+import type { IntrospectionResult, FieldDefinition, DriftConfig } from "../../src/core/types.js";
 
 describe("capitalize", () => {
   it("capitalizes first character", () => {
@@ -219,5 +222,184 @@ describe("getEditableFields", () => {
     ];
 
     expect(getEditableFields(queryFields, inputFields)).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildRegistryAsync — nested type resolution + labels
+// ---------------------------------------------------------------------------
+
+describe("buildRegistryAsync", () => {
+  const driftConfig: DriftConfig = {
+    endpoint: "http://localhost:4000/graphql",
+    maxDepth: 1,
+  };
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("resolves nested OBJECT types via introspection", async () => {
+    const fetchMock = vi
+      .fn()
+      // First call: introspect Order
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: {
+            __type: {
+              name: "Order",
+              fields: [
+                { name: "id", type: { name: "ID", kind: "SCALAR" } },
+                { name: "orderNumber", type: { name: "String", kind: "SCALAR" } },
+                { name: "customer", type: { name: "Customer", kind: "OBJECT" } },
+              ],
+            },
+          },
+        }),
+      })
+      // Second call: introspect Customer (nested)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          data: {
+            __type: {
+              name: "Customer",
+              fields: [
+                { name: "id", type: { name: "ID", kind: "SCALAR" } },
+                { name: "name", type: { name: "String", kind: "SCALAR" } },
+                { name: "email", type: { name: "String", kind: "SCALAR" } },
+              ],
+            },
+          },
+        }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const fields = await buildRegistryAsync("Order", driftConfig);
+
+    expect(fields).toContainEqual({
+      key: "orderNumber",
+      label: "Order Number",
+      graphqlPath: "orderNumber",
+      type: "string",
+    });
+    expect(fields).toContainEqual({
+      key: "customerName",
+      label: "Name",
+      graphqlPath: "customer.name",
+      type: "string",
+    });
+    expect(fields).toContainEqual({
+      key: "customerEmail",
+      label: "Email",
+      graphqlPath: "customer.email",
+      type: "string",
+    });
+  });
+
+  it("applies label overrides", async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: {
+          __type: {
+            name: "Order",
+            fields: [
+              { name: "id", type: { name: "ID", kind: "SCALAR" } },
+              { name: "orderNumber", type: { name: "String", kind: "SCALAR" } },
+              { name: "total", type: { name: "Float", kind: "SCALAR" } },
+            ],
+          },
+        },
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const fields = await buildRegistryAsync("Order", driftConfig, {
+      labels: { orderNumber: "Order #", total: "Amount" },
+    });
+
+    expect(fields.find((f) => f.key === "orderNumber")?.label).toBe("Order #");
+    expect(fields.find((f) => f.key === "total")?.label).toBe("Amount");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// buildInputRegistry — error path
+// ---------------------------------------------------------------------------
+
+describe("buildInputRegistry", () => {
+  const driftConfig: DriftConfig = {
+    endpoint: "http://localhost:4000/graphql",
+  };
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("throws when input type is not found", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ data: { __type: null } }),
+      }),
+    );
+
+    await expect(buildInputRegistry("Order", driftConfig)).rejects.toThrow(
+      /Input type "UpdateOrderInput" not found/,
+    );
+  });
+
+  it("returns fields when input type exists", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: {
+            __type: {
+              name: "UpdateOrderInput",
+              fields: [
+                { name: "orderNumber", type: { name: "String", kind: "SCALAR" } },
+                { name: "total", type: { name: "Float", kind: "SCALAR" } },
+              ],
+            },
+          },
+        }),
+      }),
+    );
+
+    const fields = await buildInputRegistry("Order", driftConfig);
+    expect(fields).toHaveLength(2);
+    expect(fields.map((f) => f.key)).toEqual(["orderNumber", "total"]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// withLabels
+// ---------------------------------------------------------------------------
+
+describe("withLabels", () => {
+  const fields: FieldDefinition[] = [
+    { key: "orderNumber", label: "Order Number", graphqlPath: "orderNumber", type: "string" },
+    { key: "total", label: "Total", graphqlPath: "total", type: "number" },
+  ];
+
+  it("returns new array with overridden labels", () => {
+    const result = withLabels(fields, { total: "Amount" });
+    expect(result.find((f) => f.key === "total")?.label).toBe("Amount");
+    expect(result.find((f) => f.key === "orderNumber")?.label).toBe("Order Number");
+  });
+
+  it("does not mutate original", () => {
+    withLabels(fields, { total: "Amount" });
+    expect(fields[1].label).toBe("Total");
+  });
+
+  it("ignores keys not in fields", () => {
+    const result = withLabels(fields, { nonExistent: "Label" });
+    expect(result).toHaveLength(2);
   });
 });

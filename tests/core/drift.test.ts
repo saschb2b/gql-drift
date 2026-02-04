@@ -331,4 +331,36 @@ describe("createDrift", () => {
       expect(result).toBeDefined();
     });
   });
+
+  describe("type() with mutation discovery failure", () => {
+    it("falls back to empty mutations when discovery fails", async () => {
+      const mockFetch = vi.fn().mockImplementation((_url: string, init: RequestInit) => {
+        const body = JSON.parse(init.body as string);
+        const typeName = body.variables?.typeName;
+
+        if (typeName === "Order") {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(orderTypeResponse),
+          });
+        }
+
+        // Mutation and input introspection both fail
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ data: { __type: null } }),
+        });
+      });
+
+      vi.stubGlobal("fetch", mockFetch);
+
+      const drift = createDrift(config);
+      const order = await drift.type("Order");
+
+      expect(order.typeName).toBe("Order");
+      expect(order.mutations.size).toBe(0);
+      expect(order.inputFields).toEqual([]);
+      expect(order.editableFields).toEqual([]);
+    });
+  });
 });

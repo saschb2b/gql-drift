@@ -128,6 +128,18 @@ describe("parseInput", () => {
   });
 });
 
+describe("formatValue edge cases", () => {
+  it("returns value as string for unknown field type", () => {
+    const unknownField: FieldDefinition = {
+      key: "data",
+      label: "Data",
+      graphqlPath: "data",
+      type: "unknown" as any,
+    };
+    expect(formatValue(unknownField, "raw-value")).toBe("raw-value");
+  });
+});
+
 describe("isEditable", () => {
   it("returns true when field is in editable set", () => {
     const editableKeys = new Set(["status", "total"]);

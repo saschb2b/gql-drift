@@ -5,6 +5,7 @@ import {
   loadSchemaFromFile,
   introspectTypeFromSchema,
   discoverMutationsFromSchema,
+  discoverTypesFromSchema,
 } from "../../src/cli/schema.js";
 
 const TMP_DIR = resolve(__dirname, "__tmp_schema_test__");
@@ -164,6 +165,38 @@ describe("schema parsing", () => {
       const schema = loadSchemaFromFile(noMutationPath);
       const mutations = discoverMutationsFromSchema("Foo", schema);
       expect(mutations.size).toBe(0);
+    });
+  });
+
+  describe("introspectTypeFromSchema error handling", () => {
+    it("throws with schema introspection errors message", () => {
+      const schema = loadSchemaFromFile(SCHEMA_PATH);
+      // Introspecting a non-existent type causes the query to return null for __type,
+      // which is caught as "not found in schema"
+      expect(() => introspectTypeFromSchema("CompletelyFake", schema)).toThrow(
+        /not found in schema/,
+      );
+    });
+  });
+
+  describe("discoverTypesFromSchema", () => {
+    it("discovers OBJECT types excluding builtins and root types", () => {
+      const schema = loadSchemaFromFile(SCHEMA_PATH);
+      const types = discoverTypesFromSchema(schema);
+
+      expect(types).toContain("Order");
+      expect(types).toContain("Customer");
+      expect(types).not.toContain("Query");
+      expect(types).not.toContain("Mutation");
+      expect(types).not.toContain("OrderStatus"); // ENUM
+      expect(types).not.toContain("UpdateOrderInput"); // INPUT_OBJECT
+    });
+
+    it("returns types sorted alphabetically", () => {
+      const schema = loadSchemaFromFile(SCHEMA_PATH);
+      const types = discoverTypesFromSchema(schema);
+      const sorted = [...types].sort((a, b) => a.localeCompare(b));
+      expect(types).toEqual(sorted);
     });
   });
 });

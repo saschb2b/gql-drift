@@ -221,3 +221,73 @@ describe("driftCreateMutation", () => {
     expect(callBody.variables.input).toEqual({ orderNumber: "ORD-999", total: 42 });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Validation paths (runValidation)
+// ---------------------------------------------------------------------------
+
+describe("mutation validation", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("update mutation uses validateFn when provided", async () => {
+    const mockResponse = {
+      ok: true,
+      json: async () => ({ data: { updateOrder: { id: "1" } } }),
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(mockResponse as Response);
+
+    const validateFn = (values: Record<string, unknown>) => ({
+      ...values,
+      orderNumber: "VALIDATED",
+    });
+
+    const opts = driftUpdateMutation({ type: orderType, config, validateFn });
+    await opts.mutationFn({ id: "1", values: { orderNumber: "RAW", total: 10 } });
+
+    const callBody = JSON.parse((globalThis.fetch as any).mock.calls[0][1].body);
+    expect(callBody.variables.input.orderNumber).toBe("VALIDATED");
+  });
+
+  it("update mutation uses Zod validation when validate=true", async () => {
+    const mockResponse = {
+      ok: true,
+      json: async () => ({ data: { updateOrder: { id: "1" } } }),
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(mockResponse as Response);
+
+    const opts = driftUpdateMutation({ type: orderType, config, validate: true });
+    await opts.mutationFn({ id: "1", values: { orderNumber: "ORD-001", total: 50 } });
+
+    const callBody = JSON.parse((globalThis.fetch as any).mock.calls[0][1].body);
+    expect(callBody.variables.input).toEqual({ orderNumber: "ORD-001", total: 50 });
+  });
+
+  it("update mutation throws on Zod validation failure", async () => {
+    const opts = driftUpdateMutation({ type: orderType, config, validate: true });
+
+    await expect(
+      opts.mutationFn({ id: "1", values: { orderNumber: 123, total: "bad" } }),
+    ).rejects.toThrow();
+  });
+
+  it("create mutation uses validateFn when provided", async () => {
+    const mockResponse = {
+      ok: true,
+      json: async () => ({ data: { createOrder: { id: "2" } } }),
+    };
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(mockResponse as Response);
+
+    const validateFn = (values: Record<string, unknown>) => ({
+      ...values,
+      total: 999,
+    });
+
+    const opts = driftCreateMutation({ type: orderType, config, validateFn });
+    await opts.mutationFn({ values: { orderNumber: "ORD-100", total: 0 } });
+
+    const callBody = JSON.parse((globalThis.fetch as any).mock.calls[0][1].body);
+    expect(callBody.variables.input.total).toBe(999);
+  });
+});

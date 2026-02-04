@@ -95,4 +95,19 @@ describe("buildQuery", () => {
     const query = buildQuery("orders", []);
     expect(query).toContain("id");
   });
+
+  it("includes additional variable declarations", () => {
+    const query = buildQuery("orders", fields, { variables: "$limit: Int" });
+    expect(query).toContain("$limit: Int");
+    expect(query).toContain("query Orders($limit: Int)");
+  });
+
+  it("combines filter and additional variables", () => {
+    const query = buildQuery("orders", fields, {
+      filter: "OrderFilter",
+      variables: "$limit: Int",
+    });
+    expect(query).toContain("$filter: OrderFilter, $limit: Int");
+    expect(query).toContain("filter: $filter");
+  });
 });

@@ -70,6 +70,13 @@ describe("flatten", () => {
     expect(result.id).toBe("1");
     expect(result.orderNumber).toBeUndefined();
   });
+
+  it("omits id when data has no id field", () => {
+    const data = { orderNumber: "ORD-001", status: "pending", total: 10 };
+    const result = flatten(data, fields);
+    expect(result.id).toBeUndefined();
+    expect(result.orderNumber).toBe("ORD-001");
+  });
 });
 
 describe("unflatten", () => {

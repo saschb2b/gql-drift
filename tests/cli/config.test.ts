@@ -1,5 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { mergeConfig, type DriftCliConfig } from "../../src/cli/config.js";
+import { writeFileSync, mkdirSync, rmSync } from "node:fs";
+import { resolve } from "node:path";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { loadConfigFile, mergeConfig, type DriftCliConfig } from "../../src/cli/config.js";
 
 describe("mergeConfig", () => {
   it("returns defaults when both inputs are empty", () => {
@@ -136,5 +138,88 @@ describe("mergeConfig", () => {
   it("exclude is undefined when not set", () => {
     const result = mergeConfig(null, {});
     expect(result.exclude).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// loadConfigFile
+// ---------------------------------------------------------------------------
+
+const TMP_DIR = resolve(__dirname, "__tmp_config_test__");
+
+describe("loadConfigFile", () => {
+  beforeAll(() => {
+    mkdirSync(TMP_DIR, { recursive: true });
+  });
+
+  afterAll(() => {
+    rmSync(TMP_DIR, { recursive: true, force: true });
+  });
+
+  it("returns null when no config file exists", async () => {
+    const emptyDir = resolve(TMP_DIR, "empty");
+    mkdirSync(emptyDir, { recursive: true });
+    const result = await loadConfigFile(emptyDir);
+    expect(result).toBeNull();
+  });
+
+  it("loads gql-drift.config.json", async () => {
+    const dir = resolve(TMP_DIR, "json");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      resolve(dir, "gql-drift.config.json"),
+      JSON.stringify({ endpoint: "http://test/graphql", types: ["Order"] }),
+    );
+
+    const result = await loadConfigFile(dir);
+    expect(result).toEqual({ endpoint: "http://test/graphql", types: ["Order"] });
+  });
+
+  it("throws on invalid JSON", async () => {
+    const dir = resolve(TMP_DIR, "bad-json");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(resolve(dir, "gql-drift.config.json"), "{ invalid json }");
+
+    await expect(loadConfigFile(dir)).rejects.toThrow("Failed to parse");
+  });
+
+  it("loads gql-drift.config.js with default export", async () => {
+    const dir = resolve(TMP_DIR, "js-default");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      resolve(dir, "gql-drift.config.js"),
+      `export default { endpoint: "http://js/graphql", types: ["Customer"] };`,
+    );
+
+    const result = await loadConfigFile(dir);
+    expect(result).toEqual({ endpoint: "http://js/graphql", types: ["Customer"] });
+  });
+
+  it("loads gql-drift.config.js without default export", async () => {
+    const dir = resolve(TMP_DIR, "js-named");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      resolve(dir, "gql-drift.config.js"),
+      `export const endpoint = "http://named/graphql"; export const types = ["Item"];`,
+    );
+
+    const result = await loadConfigFile(dir);
+    expect(result).toHaveProperty("endpoint", "http://named/graphql");
+  });
+
+  it("prefers JSON over JS when both exist", async () => {
+    const dir = resolve(TMP_DIR, "both");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      resolve(dir, "gql-drift.config.json"),
+      JSON.stringify({ endpoint: "http://json/graphql" }),
+    );
+    writeFileSync(
+      resolve(dir, "gql-drift.config.js"),
+      `export default { endpoint: "http://js/graphql" };`,
+    );
+
+    const result = await loadConfigFile(dir);
+    expect(result).toEqual({ endpoint: "http://json/graphql" });
   });
 });

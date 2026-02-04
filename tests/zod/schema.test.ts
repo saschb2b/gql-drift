@@ -93,4 +93,50 @@ describe("buildInputSchema", () => {
     expect(() => schema.parse({ createdAt: "2024-01-01T00:00:00Z" })).not.toThrow();
     expect(() => schema.parse({ createdAt: 12345 })).toThrow();
   });
+
+  it("validates enum fields with z.enum()", () => {
+    const enumFields: FieldDefinition[] = [
+      {
+        key: "status",
+        label: "Status",
+        graphqlPath: "status",
+        type: "enum",
+        enumValues: ["PENDING", "SHIPPED", "DELIVERED"],
+      },
+    ];
+    const schema = buildInputSchema(enumFields);
+    expect(() => schema.parse({ status: "PENDING" })).not.toThrow();
+    expect(() => schema.parse({ status: "SHIPPED" })).not.toThrow();
+    expect(() => schema.parse({ status: "INVALID" })).toThrow();
+  });
+
+  it("falls back to z.string() for enum without enumValues", () => {
+    const enumFields: FieldDefinition[] = [
+      {
+        key: "status",
+        label: "Status",
+        graphqlPath: "status",
+        type: "enum",
+        enumValues: [],
+      },
+    ];
+    const schema = buildInputSchema(enumFields);
+    // Falls back to z.string(), accepts any string
+    expect(() => schema.parse({ status: "anything" })).not.toThrow();
+    expect(() => schema.parse({ status: 123 })).toThrow();
+  });
+
+  it("falls back to z.string() for unknown field types", () => {
+    const unknownFields: FieldDefinition[] = [
+      {
+        key: "data",
+        label: "Data",
+        graphqlPath: "data",
+        type: "unknown" as any,
+      },
+    ];
+    const schema = buildInputSchema(unknownFields);
+    expect(() => schema.parse({ data: "some string" })).not.toThrow();
+    expect(() => schema.parse({ data: 123 })).toThrow();
+  });
 });
